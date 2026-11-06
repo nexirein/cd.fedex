@@ -23,8 +23,26 @@ export function validateRows(rows: RawRow[], sendable = SENDABLE_DEFAULT): Valid
     const standard = s(alias(r, ["Standard Remarks", "Remarks"]));
     const rawEmailField = s(alias(r, ["ConsigneeEmailID", "Consignee Email ID"]));
     const contact_email = extractEmail(standard); // rule: Standard Remarks only
-    const end_result = s(alias(r, ["End Result", "EndResult", "ClearanceType"])).toUpperCase();
-    const broker = s(alias(r, ["FedEx Broker", "Broker"])).toUpperCase();
+    let end_result = s(alias(r, ["End Result", "EndResult", "ClearanceType"])).toUpperCase().replace(/\s+/g, " ").trim();
+    const fedexBrokerRaw = s(alias(r, ["FedEx Broker", "FedExBroker", "FedEx Broker Name", "Broker"])).toUpperCase().trim();
+    let broker = "";
+    if (fedexBrokerRaw && !["0", "-", "NA", "N/A", "NULL", "NONE"].includes(fedexBrokerRaw)) {
+      if (fedexBrokerRaw.includes("JEENA") || fedexBrokerRaw.includes("JINA")) broker = "JEENA";
+      else if (fedexBrokerRaw.includes("SUNIMPEX") || fedexBrokerRaw.includes("SUNI")) broker = "SUNIMPEX";
+      else broker = fedexBrokerRaw;
+    }
+    // For FEBRK cases, derive specific broker end result from FedEx Broker column when provided
+    if (end_result === "FEBRK" && (broker === "JEENA" || broker === "SUNIMPEX")) {
+      end_result = `FEBRK-${broker}`;
+    } else if ((end_result === "FEBRK-JEENA" || end_result === "FEBRK_JEENA") && !broker) {
+      broker = "JEENA"; end_result = "FEBRK-JEENA";
+    } else if ((end_result === "FEBRK-SUNIMPEX" || end_result === "FEBRK_SUNIMPEX") && !broker) {
+      broker = "SUNIMPEX"; end_result = "FEBRK-SUNIMPEX";
+    } else if (end_result.startsWith("FEBRK-") && !broker) {
+      // keep as-is; broker validation below will block if unnamed
+      const maybe = end_result.replace("FEBRK-", "").trim();
+      if (maybe === "JEENA" || maybe === "SUNIMPEX") broker = maybe;
+    }
     const location = s(alias(r, ["Loc", "Location"])).toUpperCase();
     const freight_value = s(alias(r, ["Freight", "InvoiceValue", "Value"]));
     const currency = s(alias(r, ["Currency"])) || "INR";
@@ -49,13 +67,18 @@ export function validateRows(rows: RawRow[], sendable = SENDABLE_DEFAULT): Valid
         else reasons.push(`End Result ${end_result} is not sendable.`);
       } else {
         if (!contact_email) { preflight_result = "BLOCKED"; reasons.push("No valid email found in Standard Remarks."); }
-        if (end_result.startsWith("FEBRK") && !broker) { preflight_result = "BLOCKED"; reasons.push("Broker must be named for FEBRK."); }
+        if (end_result.startsWith("FEBRK") && !(broker === "JEENA" || broker === "SUNIMPEX" || broker)) {
+          preflight_result = "BLOCKED"; reasons.push("Broker must be named for FEBRK (use FedEx Broker: JEENA or SUNIMPEX).");
+        } else if (end_result.startsWith("FEBRK") && !(broker === "JEENA" || broker === "SUNIMPEX")) {
+          preflight_result = "BLOCKED"; reasons.push("FEBRK broker must be JEENA or SUNIMPEX (from FedEx Broker column).");
+        }
       }
     }
 
+    const brokerOut = broker || (end_result === "NFBRK" ? "OWN" : (end_result.startsWith("FEBRK-") ? end_result.replace("FEBRK-", "") : ""));
     return {
       awb, company_name: company, consignee_name: consignee, contact_email, email_source: contact_email ? "STANDARD_REMARKS" : "NONE",
-      end_result, broker: broker || (end_result === "NFBRK" ? "OWN" : ""), clearance_type: end_result.startsWith("FEBRK") ? "FEBRK" : end_result,
+      end_result, broker: brokerOut, clearance_type: end_result.startsWith("FEBRK") ? "FEBRK" : end_result,
       location, freight_value, currency, verdict, preflight_result,
       preflight_reason: reasons.join(" ") || "All checks passed.",
       standard_remarks: standard, consignee_email_id_raw: rawEmailField, raw_json: r,

@@ -29,7 +29,7 @@ export default async function DashboardPage() {
   const cards = [
     { label: "Batches", value: batchesCount, meta: "Imported workbooks", href: "/batches" },
     { label: "Shipments", value: shipmentsCount, meta: "Across all batches", href: "/batches" },
-    { label: "Pre-alerts sent", value: sentCount, meta: "Controlled by TEST MODE/allow-list", href: "/admin/links" },
+    { label: "Pre-alerts sent", value: sentCount, meta: "Sent via pre-alert flow", href: "/admin/links" },
     { label: "Sent · not opened", value: notOpened, meta: "Needs follow-up", href: "/admin/links?status=SENT_NOT_OPENED" },
     { label: "Docs received", value: docsCount, meta: "Portal uploads logged", href: "/admin/links?status=DOCS_RECEIVED" },
   ];
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
 
         <div className="fx-card p-4 flex flex-wrap items-center gap-3 text-[13px] border-l-4 border-l-[var(--fx-orange-500)]">
           <AlertCircle size={16} className="text-[var(--fx-warning)] shrink-0" />
-          <span className="text-[var(--fx-text-muted)]"><b className="text-[var(--fx-text)]">TEST MODE active.</b> Outbound pre-alerts are sent only to allow-listed recipients. Link generation, customer portal, and status tracking work normally for eligible rows.</span>
+          <span className="text-[var(--fx-text-muted)]"><b className="text-[var(--fx-text)]">Demo mode:</b> pre-alerts are sent to recipients in the uploaded Excel (restrictions removed for demo). Link generation, customer portal, and status tracking are active.</span>
           <Link href="/admin/settings" className="ml-auto font-semibold text-[var(--fx-purple-700)] hover:underline">View settings</Link>
         </div>
       </main>

@@ -22,7 +22,7 @@ export default async function BatchBoardPage({ params }: { params: Promise<{ id:
     <>
       <Topbar title={batch.batch_code} subtitle={<><Link href="/batches" className="text-[var(--fx-purple-700)] hover:underline">Batches</Link> / {batch.file_name} · {fmtDate(batch.created_at)}</>} actions={<BatchActions batchId={id} />} />
       <main className="p-6">
-        <div className="mb-4 rounded-[12px] border border-[var(--fx-warning-border)] bg-[var(--fx-warning-bg)] px-4 py-3 text-[13px] text-[#7a2e0e]"><b>TEST MODE:</b> outbound pre-alerts are sent only to allow-listed recipients. Link generation and status tracking work for eligible rows.</div>
+        <div className="mb-4 rounded-[12px] border border-[var(--fx-warning-border)] bg-[var(--fx-warning-bg)] px-4 py-3 text-[13px] text-[#7a2e0e]"><b>Demo mode:</b> pre-alerts are sent to recipients from the batch (restrictions removed for demo). Tokenized links and tracking are active for eligible rows.</div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5 mb-4">
           {[["Rows",counts.total],["Pre-flight PASS",counts.pass],["Sent",counts.sent],["Sent · Not Opened",counts.notOpened],["Docs Received",counts.docs]].map(([l,v])=> (
             <div key={String(l)} className="fx-card p-4"><div className="text-[12px] text-[var(--fx-text-subtle)]">{l}</div><div className="mt-1 text-[26px] font-bold text-[var(--fx-purple-700)]">{v}</div></div>

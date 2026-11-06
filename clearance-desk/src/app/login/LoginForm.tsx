@@ -43,7 +43,7 @@ export function LoginForm() {
           <h1 className="text-[40px] font-extrabold leading-[1.05] tracking-tight mb-4">Pre-alert, track, and collect clearance documents.</h1>
           <p className="text-white/80 text-[16px] leading-relaxed">Import UBOND/CONSOL batches, send controlled pre-alerts with tokenized links, and monitor who opened, who didn’t, and who uploaded — all in one place.</p>
           <div className="mt-8 grid grid-cols-3 gap-3">
-            {[["Validate", "Rules-based pre-flight"], ["Send", "TEST MODE + allow-list"], ["Track", "Opened / docs received"]].map(([t,d])=> (
+            {[["Validate", "Rules-based pre-flight"], ["Send", "Auto pre-alerts (demo)"], ["Track", "Opened / docs received"]].map(([t,d])=> (
               <div key={t} className="rounded-[14px] border border-white/15 bg-white/10 p-3 backdrop-blur-sm">
                 <div className="font-semibold text-[14px]">{t}</div>
                 <div className="text-[12px] text-white/70 mt-1">{d}</div>

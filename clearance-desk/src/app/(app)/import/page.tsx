@@ -222,7 +222,7 @@ export default function PreAlertFlowPage() {
                   <p className="text-[14px] text-[var(--fx-text-subtle)] mt-1">Batch <span className="fx-mono font-semibold text-[var(--fx-text)]">{batch?.batch_code}</span> processed in one flow (import → review → send).</p>
                   {sendResult ? (
                     <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
-                      {[["Sent", sendResult.sent],["Blocked", sendResult.blocked],["Already sent", sendResult.skipped],["Failed", sendResult.failed],["TEST MODE", sendResult.testMode ? "ON" : "OFF"]].map(([l,v]) => (
+                      {[["Sent", sendResult.sent],["Blocked", sendResult.blocked],["Already sent", sendResult.skipped],["Failed", sendResult.failed],["Mode", sendResult.testMode ? "Restricted" : "Demo (open)"]].map(([l,v]) => (
                         <div key={String(l)} className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface-2)] p-3"><div className="text-[11px] uppercase tracking-wide text-[var(--fx-text-subtle)] font-semibold">{l}</div><div className="text-[22px] font-extrabold mt-1">{String(v)}</div></div>
                       ))}
                     </div>
@@ -232,7 +232,7 @@ export default function PreAlertFlowPage() {
                     {batch?.id ? <a className="fx-btn fx-btn-secondary" href={`/batches/${batch.id}`}>Open batch details</a> : null}
                     <a className="fx-btn fx-btn-secondary" href="/admin/links">View link open dashboard</a>
                   </div>
-                  <div className="mt-4 flex items-start gap-2 text-[13px] text-[var(--fx-text-muted)]"><ShieldCheck size={16} className="mt-0.5 text-[var(--fx-purple-700)]"/> Emails are controlled by TEST MODE/allow-list. Customer opens/uploads can be tracked from the dashboard and shipment trace.</div>
+                  <div className="mt-4 flex items-start gap-2 text-[13px] text-[var(--fx-text-muted)]"><ShieldCheck size={16} className="mt-0.5 text-[var(--fx-purple-700)]"/> Pre-alerts are sent to eligible recipients from the uploaded Excel (demo: restrictions removed). Customer opens/uploads can be tracked from the dashboard and shipment trace.</div>
                 </div>
               </div>
             </div>

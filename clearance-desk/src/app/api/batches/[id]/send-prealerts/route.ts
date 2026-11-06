@@ -31,8 +31,18 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     // Restrictions removed for now: allow-list/TEST MODE not enforced.
     const token = s.link_token || randomUUID();
     const link = `${base}/c/${token}`;
-    const subject = `Pre Alert — ${s.awb} / ${s.company_name || "Shipment"}`;
-    const html = `<div style="font-family:Inter,Arial,sans-serif;color:#101828"><h2 style="color:#4D148C;margin:0 0 8px">FedEx Clearance Desk</h2><p>Please review your shipment and upload required clearance documents.</p><p><b>AWB:</b> ${s.awb}<br/><b>Company:</b> ${s.company_name || "—"}<br/><b>Clearance:</b> ${s.clearance_type || s.end_result || "—"}</p><p><a href="${link}" style="display:inline-block;background:#4D148C;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600">Open Secure Document Link</a></p><p style="font-size:12px;color:#667085">Secure tokenized link. Do not share. (TEST MODE)</p></div>`;
+    const subject = `FedEx Clearance: Action required for AWB ${s.awb}`;
+    const html = `<div style="font-family:Inter,Arial,sans-serif;color:#101828;max-width:560px">
+      <h2 style="color:#4D148C;margin:0 0 8px">FedEx Clearance Desk</h2>
+      <p style="margin:0 0 12px">Please review your shipment details and upload the required clearance documents using the secure link below.</p>
+      <div style="background:#F9FAFB;border:1px solid #EAECF0;border-radius:12px;padding:14px 16px;margin:0 0 16px">
+        <p style="margin:0"><b>AWB:</b> ${s.awb}<br/>
+        <b>Company:</b> ${s.company_name || "—"}<br/>
+        <b>Clearance / End Result:</b> ${s.clearance_type || s.end_result || "—"}${s.broker ? `<br/><b>Broker:</b> ${s.broker}` : ""}</p>
+      </div>
+      <p style="margin:0 0 16px"><a href="${link}" style="display:inline-block;background:#4D148C;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:600">Open Secure Document Link</a></p>
+      <p style="font-size:12px;color:#667085;margin:0">This is a secure, shipment-specific link. Please do not share it. If you need help, contact the FedEx Clearance Desk team.</p>
+    </div>`;
     try {
       const info = await sendMail({ to, subject, html });
       await admin.from("shipments").update({ link_token: token, send_state: "SENT", sent_at: new Date().toISOString() }).eq("id", s.id);

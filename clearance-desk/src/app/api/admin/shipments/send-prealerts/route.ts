@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSessionProfile } from "@/lib/supabase/auth";
 import { sendMail } from "@/lib/email/smtp";
 import { randomUUID } from "crypto";
+import { getTemplateForShipment, renderPrealertEmailHtml } from "@/lib/prealert-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,44 +54,35 @@ export async function POST(req: Request) {
 
       const token = s.link_token || randomUUID();
       const link = `${base}/c/${token}`;
-      const subject = `FedEx Clearance: Action required for AWB ${s.awb}`;
-      const html = `<div style="font-family:Inter,Arial,sans-serif;color:#101828;max-width:560px">
-      <h2 style="color:#4D148C;margin:0 0 8px">FedEx Clearance Desk</h2>
-      <p style="margin:0 0 12px">Please review your shipment details and upload the required clearance documents using the secure link below.</p>
-      <div style="background:#F9FAFB;border:1px solid #EAECF0;border-radius:12px;padding:14px 16px;margin:0 0 16px">
-        <p style="margin:0"><b>AWB:</b> ${s.awb}<br/>
-        <b>Company:</b> ${s.company_name || "—"}<br/>
-        <b>Clearance / End Result:</b> ${s.clearance_type || s.end_result || "—"}${s.broker ? `<br/><b>Broker:</b> ${s.broker}` : ""}</p>
-      </div>
-      <p style="margin:0 0 16px"><a href="${link}" style="display:inline-block;background:#4D148C;color:#fff;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:600">Open Secure Document Link</a></p>
-      <p style="font-size:12px;color:#667085;margin:0">This is a secure, shipment-specific link. Please do not share it. If you need help, contact the FedEx Clearance Desk team.</p>
-    </div>`;
+      const template = await getTemplateForShipment(admin as any, s);
+      const subject = template.subject;
+      const html = renderPrealertEmailHtml({ shipment: s, link, template });
 
       try {
         const info = await sendMail({ to, subject, html });
         await admin.from("shipments").update({ link_token: token, send_state: "SENT", sent_at: new Date().toISOString() }).eq("id", s.id);
         await admin.from("messages").insert({
           shipment_id: s.id, batch_id: s.batch_id, awb: s.awb, direction: "OUTBOUND", channel: "EMAIL",
-          recipient: to, subject, template_key: "CD_PREALERT_V1", status: "SENT",
+          recipient: to, subject, template_key: template.case_key, status: "SENT",
           provider_message_id: info?.messageId || null, link_token: token,
         });
         await admin.from("shipment_events").insert({
           shipment_id: s.id, batch_id: s.batch_id, awb: s.awb, event_type: "PREALERT_SENT",
           actor_type: profile?.role || "AGENT", actor_id: profile?.id || null,
-          detail: { to, test_mode: testMode, unrestricted: true, source: "admin_link_dashboard", resend },
+          detail: { to, test_mode: testMode, unrestricted: true, source: "admin_link_dashboard", resend, template_case: template.case_key },
         });
         sent++;
-        details.push({ awb, status: "SENT", reason: `Sent to ${to}` });
+        details.push({ awb, status: "SENT", reason: `Sent to ${to} (${template.case_key})` });
       } catch (e: any) {
         failed++;
         await admin.from("shipments").update({ link_token: token, send_state: "FAILED" }).eq("id", s.id);
         await admin.from("messages").insert({
           shipment_id: s.id, batch_id: s.batch_id, awb: s.awb, direction: "OUTBOUND", channel: "EMAIL",
-          recipient: to, subject, template_key: "CD_PREALERT_V1", status: "FAILED", link_token: token, error: e?.message || "send failed",
+          recipient: to, subject, template_key: template.case_key, status: "FAILED", link_token: token, error: e?.message || "send failed",
         });
         await admin.from("shipment_events").insert({
           shipment_id: s.id, batch_id: s.batch_id, awb: s.awb, event_type: "SEND_BLOCKED",
-          actor_type: "SYSTEM", detail: { error: e?.message, source: "admin_link_dashboard" },
+          actor_type: "SYSTEM", detail: { error: e?.message, source: "admin_link_dashboard", template_case: template.case_key },
         });
         details.push({ awb, status: "FAILED", reason: e?.message || "Send failed" });
       }

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Upload, Boxes, Radar, Users, Settings, LogOut, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Upload, Boxes, Radar, Users, Settings, LogOut, ChevronRight, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
@@ -10,6 +10,7 @@ const nav = [
   { href: "/import", label: "Pre-Alert Flow", icon: Upload },
   { href: "/batches", label: "Batch History", icon: Boxes },
   { href: "/admin/links", label: "Link Open Dashboard", icon: Radar, admin: true },
+  { href: "/admin/templates", label: "Templates & Docs", icon: FileText, admin: true },
   { href: "/admin/users", label: "Users", icon: Users, admin: true },
   { href: "/admin/settings", label: "Settings", icon: Settings, admin: true },
 ];
@@ -60,10 +61,10 @@ export function Sidebar({ profile }: { profile: { full_name: string | null; emai
       <div className="px-3 pb-3">
         <div className="rounded-[14px] border border-white/10 bg-white/[0.07] p-3 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-[.12em] text-white/45">Environment</span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(255,102,0,.22)] px-2 py-0.5 text-[10px] font-bold text-[#ffd7bf]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--fx-orange-500)] animate-pulse" />TEST</span>
+            <span className="text-[10px] font-bold uppercase tracking-[.12em] text-white/45">Mode</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(255,102,0,.22)] px-2 py-0.5 text-[10px] font-bold text-[#ffd7bf]"><span className="h-1.5 w-1.5 rounded-full bg-[var(--fx-orange-500)] animate-pulse" />DEMO</span>
           </div>
-          <div className="text-[12px] text-white/75 leading-snug">Allow-list enforced for outbound pre-alerts.</div>
+          <div className="text-[12px] text-white/75 leading-snug">Pre-alert templates by case (NFBRK/FEBRK). Default docs served via secure customer link.</div>
         </div>
         <div className="mt-3 flex items-center justify-between gap-2 rounded-[12px] px-2 py-2">
           <div className="flex items-center gap-2.5 min-w-0">

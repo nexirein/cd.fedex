@@ -41,8 +41,8 @@ export function ResetDataButton() {
       </div>
       <div className="p-5 space-y-3">
         <p className="text-[14px] text-[var(--fx-text-muted)]">
-          Delete batches, shipments, pre-alert messages, events, documents, and allow-list data so you can reuse the same Excel for testing.
-          <b className="text-[var(--fx-text)]"> Admin/agent login profiles and app settings are kept.</b>
+          Delete batches, shipments, pre-alert messages, events, uploaded shipment documents, and allow-list data so you can reuse the same Excel for testing.
+          <b className="text-[var(--fx-text)]"> Kept:</b> admin/agent login profiles, app settings, and <b className="text-[var(--fx-text)]">pre-alert template configs/default template files</b> (NFBRK/FEBRK setup).
         </p>
         {!open ? (
           <button className="fx-btn fx-btn-secondary" onClick={() => { setOpen(true); setMsg(""); setErr(""); }}>

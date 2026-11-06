@@ -18,7 +18,8 @@ export async function POST(req: Request) {
     const admin = createAdminClient();
     const bucket = process.env.SUPABASE_STORAGE_BUCKET || "clearance-documents";
 
-    // Best-effort: remove stored document files
+    // Best-effort: remove stored shipment/document files (from `documents` table only).
+    // Template/default files uploaded in Admin → Templates & Docs (templates/...) are kept.
     const { data: docs } = await admin.from("documents").select("storage_path");
     const paths = (docs || []).map((d: any) => d.storage_path).filter(Boolean);
     if (paths.length) {
@@ -28,11 +29,11 @@ export async function POST(req: Request) {
       }
     }
 
-    // Delete operational data (FK-safe order). Keep profiles (logins) and app_settings.
+    // Delete operational test data (FK-safe order). Keep configuration and logins:
+    // profiles (admin/agent logins), app_settings, prealert_template_configs, prealert_template_files.
     const tables = ["documents", "messages", "shipment_events", "shipments", "batches", "allow_list"] as const;
     const deleted: Record<string, number | null> = {};
     for (const table of tables) {
-      // delete all rows
       const { error, count } = await admin.from(table).delete({ count: "exact" }).not("id", "is", null);
       if (error) return NextResponse.json({ error: `Failed deleting ${table}: ${error.message}`, deleted }, { status: 500 });
       deleted[table] = count ?? null;
@@ -40,9 +41,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      message: "Test data deleted. Admin/agent login profiles and app settings were kept.",
+      message: "Test data deleted. Kept: admin/agent logins, app settings, and pre-alert template configs/default template files.",
       deleted,
       storageObjectsRemoved: paths.length,
+      kept: ["profiles", "app_settings", "prealert_template_configs", "prealert_template_files"],
     });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Reset failed" }, { status: 500 });

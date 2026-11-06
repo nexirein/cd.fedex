@@ -1,0 +1,1256 @@
+Screens:
+  ScrBatchBoard:
+    Properties:
+      Fill: =RGBA(245, 246, 248, 1)
+      OnVisible: |-
+        =Set(varTestMode, Coalesce(LookUp(CD_Setting, Title = "CD_TestMode").SettingValue, "Yes") = "Yes");
+        Set(varAllowlist, ";" & Lower(Trim(Coalesce(LookUp(CD_Setting, Title = "sendTestAllowlist").SettingValue, ""))) & ";");
+        Set(varSubBatchSize, If(Value(Coalesce(LookUp(CD_Setting, Title = "SubBatchSize").SettingValue, "0")) <= 0, 25, Value(LookUp(CD_Setting, Title = "SubBatchSize").SettingValue)));
+        Set(varSendable, "|" & Substitute(Coalesce(LookUp(CD_Setting, Title = "sendableEndResults").SettingValue, "NFBRK;FEBRK-JEENA;FEBRK-SUNIMPEX"), ";", "|") & "|");
+        Set(varBdBatch, Coalesce(LookUp(SortByColumns(colBatch, "UploadedAt", SortOrder.Descending), Title <> "").Title, ""));
+        Set(varBdSel, Blank());
+        Set(varBdSendState, "IDLE");
+        Set(varBdSentCount, 0);
+        Set(varBdSubBatch, 0);
+        Set(varBdSubBatches, 0);
+        Set(varBdReadyCount, 0);
+        Set(varBdBlockedCount, 0);
+        ClearCollect(colBdAll, AddColumns(AddColumns(AddColumns(AddColumns(AddColumns(AddColumns(Filter(DropColumns(colShipment, Title), !IsBlank(RawJSON) && Text(ParseJSON(RawJSON).Batch) = varBdBatch),
+            Awb, Text(ParseJSON(RawJSON).AWB),
+            Company, Text(ParseJSON(RawJSON).Company),
+            Email, Text(ParseJSON(RawJSON).Email),
+            EndResult, Text(ParseJSON(RawJSON).EndResult),
+            Broker, Text(ParseJSON(RawJSON).Broker),
+            Location, Text(ParseJSON(RawJSON).Location),
+            FreightTxt, Text(ParseJSON(RawJSON).Freight),
+            Currency, Text(ParseJSON(RawJSON).Currency),
+            BatchKey, Text(ParseJSON(RawJSON).Batch)),
+            AwbOk, !IsBlank(Trim(Awb)) && Len(Trim(Awb)) >= 11 && Len(Trim(Awb)) <= 12,
+            EmailOk, !IsBlank(Trim(Email)) && (Find("@", Lower(Trim(Email))) > 0),
+            Sendable, Find("|" & Trim(EndResult) & "|", varSendable) > 0,
+            TplName, If(Find("|" & Trim(EndResult) & "|", varSendable) = 0, "", If(EndResult = "NFBRK", "NFBRK", If(Broker = "JEENA", "FEBRK-JEENA", If(Broker = "SUNIMPEX", "FEBRK-SUNIMPEX", ""))))),
+            TplSubject, LookUp(colTemplate, Title = TplName).SubjectPattern,
+            TplBody, LookUp(colTemplate, Title = TplName).BodyContent,
+            TplCc, LookUp(colTemplate, Title = TplName).CCEmails,
+            TplTag, LookUp(colTemplate, Title = TplName).SubjectTagEnabled,
+            CaseTitle, LookUp(colCase, Find(Awb, Reason) > 0).Title),
+            PfRecipient, If(IsBlank(Trim(Email)), "missing", If(EmailOk, "valid", "bad email")),
+            PfType, If(IsBlank(Trim(EndResult)), "unresolved", Trim(EndResult)),
+            PfMissing, If(IsBlank(Trim(Awb)), ", AWB", "") & If(IsBlank(Trim(Company)), ", CONSIGNEE_NAME", "") & If(IsBlank(Trim(FreightTxt)), ", FREIGHT", "") & If(IsBlank(Trim(Currency)), ", CURRENCY", "") & If(IsBlank(Trim(Location)), ", LOCATION", "") & If(IsBlank(TplSubject), ", TEMPLATE", "")),
+            PfPlaceholders, If(!Sendable, "n/a — " & Trim(EndResult), If(IsBlank(PfMissing), "all set", Trim(PfMissing) & " missing")),
+            PfResult, If(!Sendable, "SKIPPED", If(AwbOk && EmailOk && IsBlank(PfMissing), "PASS", "BLOCKED"))),
+            PfReason, If(PfResult = "PASS", "", If(!Sendable, "End result " & Trim(EndResult) & " is not on the sendable list. " & If(Trim(EndResult) = "HOLD", "On hold — do not pre-alert. ", "") & If(Trim(EndResult) = "Calling", "Marked Calling — a call has to clear this first. ", "") & If(Trim(EndResult) = "FEBRK", "Bare FEBRK — name the broker, then set it to FEBRK-JEENA or FEBRK-SUNIMPEX. ", ""), If(!AwbOk, "AWB missing or malformed. ", "") & If(!EmailOk, "Consignee email missing or malformed. ", "") & If(!IsBlank(PfMissing), "Placeholder missing: " & PfMissing & ". ", ""))),
+            PfFix, If(PfResult = "PASS", "", If(!Sendable, If(Trim(EndResult) = "HOLD", "Release the hold, then re-run pre-flight. ", If(Trim(EndResult) = "Calling", "Complete the call and update the end result. ", If(Trim(EndResult) = "FEBRK", "Confirm the broker for this AWB, then unblock the line. ", "If this type should be pre-alerted, add it to the sendableEndResults setting. "))), If(!AwbOk, "Re-upload the row with an 11 or 12 digit AWB. ", "") & If(!EmailOk, "Re-upload the row with a valid consignee email. ", "") & If(!IsBlank(PfMissing), "Supply the missing value and re-run pre-flight. ", ""))),
+            RenderSubject, Substitute(Substitute(Substitute(Substitute(Substitute(TplSubject, "{AWB}", Awb), "{CONSIGNEE_NAME}", Company), "{FREIGHT}", FreightTxt), "{CURRENCY}", Currency), "{LOCATION}", Location) & If(!IsBlank(CaseTitle) && TplTag = true, " [" & CaseTitle & "]", ""),
+            RenderBody, Substitute(Substitute(Substitute(Substitute(Substitute(TplBody, "{AWB}", Awb), "{CONSIGNEE_NAME}", Company), "{FREIGHT}", FreightTxt), "{CURRENCY}", Currency), "{LOCATION}", Location)));
+        Set(varBdReadyCount, CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "PASS")));
+        Set(varBdBlockedCount, CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "BLOCKED")));
+        Set(varBdSubBatches, If(varBdReadyCount = 0, 0, RoundUp(varBdReadyCount / varSubBatchSize, 0)));
+        Set(varBdSel, If(CountRows(Filter(colBdAll, BatchKey = varBdBatch)) > 0, First(Filter(colBdAll, BatchKey = varBdBatch)), Blank()))
+    Children:
+      - conBdRoot:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(245, 246, 248, 1)
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Horizontal
+            Width: =Parent.Width
+          Children:
+            - conBdSidebar:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =16
+                  PaddingTop: =18
+                  Width: =252
+                Children:
+                  - conBdSbBrand:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                      Children:
+                        - conBdSbLogo:
+                            Control: GroupContainer
+                            Variant: ManualLayout
+                            Properties:
+                              Fill: =RGBA(255, 102, 0, 1)
+                              FillPortions: =0
+                              Height: =40
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =10
+                              RadiusBottomRight: =10
+                              RadiusTopLeft: =10
+                              RadiusTopRight: =10
+                              Width: =40
+                            Children:
+                              - lblBdSbLogo:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="FedEx logo"
+                                    Align: =Align.Center
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =40
+                                    Size: =16
+                                    Text: ="FX"
+                                    Width: =40
+                        - conBdSbName:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =1
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblBdSbName:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Clearance Desk"
+                                    AutoHeight: =true
+                                    Color: =RGBA(77, 20, 140, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =18
+                                    Text: ="Clearance Desk"
+                                    Wrap: =false
+                              - lblBdSbSub:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Cargo, Phase 1"
+                                    AutoHeight: =true
+                                    Color: =RGBA(120, 120, 132, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: ="Cargo · Phase 1"
+                                    Wrap: =false
+                  - conBdSbDividerTop:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(229, 231, 235, 1)
+                        FillPortions: =0
+                        Height: =1
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conBdSbNav:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =2
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                      Children:
+                        - btnBdNavHome:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Home"
+                              Align: =Align.Left
+                              Appearance: =ButtonAppearance.Subtle
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrHome, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Home"
+                        - btnBdNavUpload:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Upload batch"
+                              Align: =Align.Left
+                              Appearance: =ButtonAppearance.Subtle
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrBatchUpload, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Upload batch"
+                        - btnBdNavBoard:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Batch board"
+                              Align: =Align.Left
+                              BasePaletteColor: =RGBA(77, 20, 140, 1)
+                              FontWeight: =FontWeight.Semibold
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrBatchBoard, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Batch board"
+                  - conBdSbSpacer:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conBdSbDividerBot:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(229, 231, 235, 1)
+                        FillPortions: =0
+                        Height: =1
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conBdSbFoot:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =3
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                        PaddingTop: =14
+                      Children:
+                        - lblBdSbUser:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Signed in as bipul.sikder at fedex.com"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="bipul.sikder@fedex.com"
+                              Wrap: =false
+                        - lblBdSbVer:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Demo build version 0.1"
+                              AutoHeight: =true
+                              Color: =RGBA(150, 150, 160, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =11
+                              Text: ="Demo build · v0.1"
+                              Wrap: =false
+            - conBdSidebarRule:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(229, 231, 235, 1)
+                  FillPortions: =0
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Width: =1
+            - conBdMain:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(245, 246, 248, 1)
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                Children:
+                  - conBdTopBar:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        Height: =72
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =16
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =28
+                        PaddingRight: =28
+                        Width: =Parent.Width
+                      Children:
+                        - conBdTopLeft:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblBdPageTitle:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Batch board"
+                                    AutoHeight: =true
+                                    Color: =RGBA(26, 26, 26, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =22
+                                    Text: ="Batch board"
+                                    Wrap: =false
+                              - lblBdBadgeTest:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: ="Test mode"
+                                    Appearance: ='BadgeCanvas.Appearance'.Filled
+                                    Content: ="TEST MODE"
+                                    Height: =26
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =120
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: ='BadgeCanvas.ThemeColor'.Warning
+                        - conBdTopRight:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =20
+                              LayoutJustifyContent: =LayoutJustifyContent.End
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - togBdAi:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="AI switch"
+                                    Default: =varAiEnabled
+                                    Height: =40
+                                    Label: ="AI"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =96
+                                    OnCheck: |-
+                                      =Set(varAiEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "aiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "aiEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "aiEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varAiEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "aiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "aiEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "aiEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togBdSend:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Send switch"
+                                    Default: =varAutoSendEnabled
+                                    Height: =40
+                                    Label: ="Send"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =106
+                                    OnCheck: |-
+                                      =Set(varAutoSendEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "autoSendEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "autoSendEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "autoSendEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varAutoSendEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "autoSendEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "autoSendEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "autoSendEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togBdFollowup:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Follow-up switch"
+                                    Default: =varFollowupEnabled
+                                    Height: =40
+                                    Label: ="Follow-up"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =122
+                                    OnCheck: |-
+                                      =Set(varFollowupEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "followupEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "followupEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "followupEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varFollowupEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "followupEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "followupEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "followupEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togBdCall:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Call AI switch"
+                                    Default: =varCallAiEnabled
+                                    Height: =40
+                                    Label: ="Call AI"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =112
+                                    OnCheck: |-
+                                      =Set(varCallAiEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "callAiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "callAiEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "callAiEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varCallAiEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "callAiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "callAiEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "callAiEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                  - conBdAccent:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 102, 0, 1)
+                        FillPortions: =0
+                        Height: =4
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Parent.Width
+                  - conBdContent:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =18
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        LayoutOverflowY: =LayoutOverflow.Scroll
+                        PaddingBottom: =40
+                        PaddingLeft: =28
+                        PaddingRight: =28
+                        PaddingTop: =22
+                      Children:
+                        - conBdHead:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =16
+                              LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - conBdHeadLeft:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    LayoutDirection: =LayoutDirection.Vertical
+                                    LayoutGap: =4
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - lblBdHeadTitle:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Batch board"
+                                          AutoHeight: =true
+                                          Color: =RGBA(26, 26, 26, 1)
+                                          FontWeight: =FontWeight.Semibold
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =22
+                                          Text: ="Batch board"
+                                          Wrap: =false
+                                    - lblBdHeadSub:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Pre-flight runs per row. One bad row never blocks the good ones."
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =13
+                                          Text: ="Pre-flight runs per row. One bad row never blocks the good ones."
+                                          Wrap: =false
+                              - lblBdBatchChip:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: =varBdBatch
+                                    Appearance: ='BadgeCanvas.Appearance'.Filled
+                                    Content: =varBdBatch
+                                    Height: =30
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =240
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: ='BadgeCanvas.ThemeColor'.Brand
+                        - conBdPicker:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =8
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblBdPickHead:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Batch"
+                                    AutoHeight: =true
+                                    Color: =RGBA(120, 120, 132, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =13
+                                    Text: ="Batch"
+                                    Wrap: =false
+                              - galBdBatches:
+                                  Control: Gallery
+                                  Variant: Horizontal
+                                  Properties:
+                                    AccessibleLabel: ="galBdBatches"
+                                    FillPortions: =0
+                                    Height: =64
+                                    Items: =colBatch
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(varBdBatch, ThisItem.Title); Set(varBdSel, If(CountRows(Filter(colBdAll, BatchKey = ThisItem.Title)) > 0, First(Filter(colBdAll, BatchKey = ThisItem.Title)), Blank()))
+                                    TabIndex: =0
+                                    TemplatePadding: =4
+                                    TemplateSize: =230
+                                    Width: =Parent.Width
+                                    WrapCount: =3
+                                  Children:
+                                    - conBdBatchChip:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          BorderColor: =If(ThisItem.Title = varBdBatch, RGBA(255, 102, 0, 1), RGBA(229, 231, 235, 1))
+                                          BorderThickness: =1
+                                          Fill: =If(ThisItem.Title = varBdBatch, RGBA(255, 244, 235, 1), RGBA(245, 246, 248, 1))
+                                          Height: =44
+                                          LayoutAlignItems: =LayoutAlignItems.Center
+                                          LayoutDirection: =LayoutDirection.Horizontal
+                                          PaddingLeft: =14
+                                          PaddingRight: =14
+                                          RadiusBottomLeft: =10
+                                          RadiusBottomRight: =10
+                                          RadiusTopLeft: =10
+                                          RadiusTopRight: =10
+                                        Children:
+                                          - lblBdBatchChipText:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: =ThisItem.Title
+                                                AutoHeight: =true
+                                                Color: =RGBA(26, 26, 26, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =13
+                                                Text: =ThisItem.Title
+                                                Wrap: =false
+                        - conBdStats:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =14
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =18
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =18
+                              RadiusBottomLeft: =14
+                              RadiusBottomRight: =14
+                              RadiusTopLeft: =14
+                              RadiusTopRight: =14
+                            Children:
+                              - conBdStatRow:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    FillPortions: =0
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =34
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - conBdStatRowsin:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - BdStatRowsinLbl:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Rows in"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Rows in"
+                                                Wrap: =false
+                                          - BdStatRowsinVal:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Rows in"
+                                                AutoHeight: =true
+                                                Color: =If(locStat = "RowsIn", RGBA(214, 74, 0, 1), RGBA(26, 26, 26, 1))
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =22
+                                                Text: =Text(Coalesce(LookUp(colBatch, Title = varBdBatch).RowCountIn, 0), "#,##0")
+                                                Wrap: =false
+                                    - conBdStatPreflightpass:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - BdStatPreflightpassLbl:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Pre-flight pass"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Pre-flight pass"
+                                                Wrap: =false
+                                          - BdStatPreflightpassVal:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Pre-flight pass"
+                                                AutoHeight: =true
+                                                Color: =RGBA(21, 128, 61, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =22
+                                                Text: =Text(CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "PASS")), "#,##0")
+                                                Wrap: =false
+                                    - conBdStatBlocked:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - BdStatBlockedLbl:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Blocked"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Blocked"
+                                                Wrap: =false
+                                          - BdStatBlockedVal:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Blocked"
+                                                AutoHeight: =true
+                                                Color: =If(locStat = "Need", RGBA(214, 74, 0, 1), RGBA(185, 28, 28, 1))
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =22
+                                                Text: =Text(CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "BLOCKED")), "#,##0")
+                                                Wrap: =false
+                                    - conBdStatNotsendable:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - BdStatNotsendableLbl:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Not sendable"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Not sendable"
+                                                Wrap: =false
+                                          - BdStatNotsendableVal:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Not sendable"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =22
+                                                Text: =Text(CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "SKIPPED")), "#,##0")
+                                                Wrap: =false
+                                    - conBdStatSent:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - BdStatSentLbl:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Sent"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Sent"
+                                                Wrap: =false
+                                          - BdStatSentVal:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Sent"
+                                                AutoHeight: =true
+                                                Color: =If(locStat = "Sent", RGBA(214, 74, 0, 1), RGBA(77, 20, 140, 1))
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =22
+                                                Text: =Text(Coalesce(LookUp(colBatch, Title = varBdBatch).SentCount, 0), "#,##0")
+                                                Wrap: =false
+                              - conBdProgCapRow:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    FillPortions: =0
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =12
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - lblBdProgCap:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Send progress"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: ="Send progress · sub-batch " & varBdSubBatch & " of " & varBdSubBatches & " · " & varBdSentCount & " / " & varBdReadyCount & " sent"
+                                          Wrap: =false
+                                    - lblBdProgPct:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Send progress percent"
+                                          AutoHeight: =true
+                                          Color: =RGBA(26, 26, 26, 1)
+                                          FillPortions: =1
+                                          FontWeight: =FontWeight.Semibold
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =12
+                                          Text: =Text(Round(If(varBdReadyCount = 0, 0, varBdSentCount / varBdReadyCount) * 100, 0)) & "%"
+                                          Wrap: =false
+                              - prgBdBatchTotal:
+                                  Control: ModernProgressBar
+                                  Properties:
+                                    AccessibleLabel: ="Send progress"
+                                    Height: =10
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Value: =If(varBdReadyCount = 0, 0, varBdSentCount / varBdReadyCount)
+                        - conBdPfCard:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              Height: =560
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =14
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =18
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =18
+                              RadiusBottomLeft: =14
+                              RadiusBottomRight: =14
+                              RadiusTopLeft: =14
+                              RadiusTopRight: =14
+                            Children:
+                              - lblBdPfHead:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Pre-flight — per row"
+                                    AutoHeight: =true
+                                    Color: =RGBA(26, 26, 26, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =17
+                                    Text: ="Pre-flight — per row"
+                                    Wrap: =false
+                              - lblBdPfCount:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Pre-flight pass and blocked counts"
+                                    AutoHeight: =true
+                                    Color: =RGBA(120, 120, 132, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: =CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "PASS")) & " pass · " & CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "BLOCKED")) & " blocked · " & CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "SKIPPED")) & " not sendable"
+                                    Wrap: =false
+                              - conBdPfHeader:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    FillPortions: =0
+                                    Height: =28
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =12
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - lblBdHdrAWB:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="AWB"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =124
+                                          Size: =11
+                                          Text: ="AWB"
+                                          Wrap: =false
+                                    - lblBdHdrCompany:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Company"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          FillPortions: =3
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Company"
+                                          Wrap: =false
+                                    - lblBdHdrPlaceholders:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Placeholders"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          FillPortions: =3
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Placeholders"
+                                          Wrap: =false
+                                    - lblBdHdrClearancetype:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Clearance type"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          FillPortions: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Clearance type"
+                                          Wrap: =false
+                                    - lblBdHdrRecipient:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Recipient"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          FillPortions: =2
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Size: =11
+                                          Text: ="Recipient"
+                                          Wrap: =false
+                                    - lblBdHdrResult:
+                                        Control: ModernText
+                                        Properties:
+                                          AccessibleLabel: ="Result"
+                                          AutoHeight: =true
+                                          Color: =RGBA(120, 120, 132, 1)
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =108
+                                          Size: =11
+                                          Text: ="Result"
+                                          Wrap: =false
+                              - conBdHdrLine:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Fill: =RGBA(229, 231, 235, 1)
+                                    FillPortions: =0
+                                    Height: =1
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                              - galBdRows:
+                                  Control: Gallery
+                                  Variant: Vertical
+                                  Properties:
+                                    AccessibleLabel: ="galBdRows"
+                                    FillPortions: =0
+                                    Height: =330
+                                    Items: =Filter(colBdAll, BatchKey = varBdBatch)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Set(varBdSel, ThisItem)
+                                    TabIndex: =0
+                                    TemplatePadding: =4
+                                    TemplateSize: =54
+                                    Width: =Parent.Width
+                                  Children:
+                                    - conBdRowShell:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          BorderColor: =RGBA(229, 231, 235, 1)
+                                          BorderThickness: =1
+                                          Fill: =If(ThisItem.Awb = varBdSel.Awb, RGBA(255, 244, 235, 1), RGBA(255, 255, 255, 1))
+                                          Height: =Parent.TemplateHeight
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          RadiusBottomLeft: =8
+                                          RadiusBottomRight: =8
+                                          RadiusTopLeft: =8
+                                          RadiusTopRight: =8
+                                          Width: =Parent.TemplateWidth
+                                        Children:
+                                          - conBdRowInner:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                FillPortions: =0
+                                                Height: =44
+                                                LayoutAlignItems: =LayoutAlignItems.Center
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutGap: =12
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                              Children:
+                                                - lblBdRowAwb:
+                                                    Control: ModernText
+                                                    Properties:
+                                                      AccessibleLabel: ="AWB"
+                                                      AutoHeight: =true
+                                                      Color: =RGBA(26, 26, 26, 1)
+                                                      FontWeight: =FontWeight.Semibold
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =124
+                                                      Size: =13
+                                                      Text: =ThisItem.Awb
+                                                      Wrap: =false
+                                                - lblBdRowCo:
+                                                    Control: ModernText
+                                                    Properties:
+                                                      AccessibleLabel: ="Consignee company"
+                                                      AutoHeight: =true
+                                                      Color: =RGBA(26, 26, 26, 1)
+                                                      FillPortions: =3
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =0
+                                                      Size: =13
+                                                      Text: =ThisItem.Company
+                                                      Wrap: =false
+                                                - lblBdRowPh:
+                                                    Control: ModernText
+                                                    Properties:
+                                                      AccessibleLabel: ="Placeholders"
+                                                      AutoHeight: =true
+                                                      Color: =If(ThisItem.PfResult = "PASS", RGBA(90, 90, 102, 1), RGBA(214, 74, 0, 1))
+                                                      FillPortions: =3
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =0
+                                                      Size: =12
+                                                      Text: =ThisItem.PfPlaceholders
+                                                      Wrap: =false
+                                                - lblBdRowType:
+                                                    Control: ModernText
+                                                    Properties:
+                                                      AccessibleLabel: ="Clearance type"
+                                                      AutoHeight: =true
+                                                      Color: =RGBA(90, 90, 102, 1)
+                                                      FillPortions: =2
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =0
+                                                      Size: =12
+                                                      Text: =ThisItem.PfType
+                                                      Wrap: =false
+                                                - lblBdRowRec:
+                                                    Control: ModernText
+                                                    Properties:
+                                                      AccessibleLabel: ="Recipient"
+                                                      AutoHeight: =true
+                                                      Color: =If(ThisItem.PfRecipient = "valid", RGBA(90, 90, 102, 1), RGBA(214, 74, 0, 1))
+                                                      FillPortions: =2
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =0
+                                                      Size: =12
+                                                      Text: =ThisItem.PfRecipient
+                                                      Wrap: =false
+                                                - bdgBdRowResult:
+                                                    Control: Badge
+                                                    Properties:
+                                                      AccessibleLabel: ="Pre-flight result"
+                                                      Appearance: ='BadgeCanvas.Appearance'.Filled
+                                                      Content: =ThisItem.PfResult
+                                                      Height: =26
+                                                      LayoutMinHeight: =0
+                                                      LayoutMinWidth: =108
+                                                      Shape: ='BadgeCanvas.Shape'.Rounded
+                                                      ThemeColor: =If(ThisItem.PfResult = "PASS", 'BadgeCanvas.ThemeColor'.Success, If(ThisItem.PfResult = "BLOCKED", 'BadgeCanvas.ThemeColor'.Warning, 'BadgeCanvas.ThemeColor'.Informative))
+                                          - conBdRowLine:
+                                              Control: GroupContainer
+                                              Variant: AutoLayout
+                                              Properties:
+                                                Fill: =RGBA(229, 231, 235, 1)
+                                                FillPortions: =0
+                                                Height: =1
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                        - conBdSendCard:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              Fill: =RGBA(255, 255, 255, 1)
+                              FillPortions: =0
+                              Height: =250
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              PaddingBottom: =18
+                              PaddingLeft: =20
+                              PaddingRight: =20
+                              PaddingTop: =18
+                              RadiusBottomLeft: =14
+                              RadiusBottomRight: =14
+                              RadiusTopLeft: =14
+                              RadiusTopRight: =14
+                            Children:
+                              - conBdSend:
+                                  Control: GroupContainer
+                                  Variant: AutoLayout
+                                  Properties:
+                                    FillPortions: =0
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =20
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                  Children:
+                                    - conBdSendLeft:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =6
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                        Children:
+                                          - lblBdSendHead:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Send pre-alerts"
+                                                AutoHeight: =true
+                                                Color: =RGBA(26, 26, 26, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =17
+                                                Text: ="Send pre-alerts"
+                                                Wrap: =false
+                                          - lblBdSendSub:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Runs in sub-batches of 25, paced. A failed sub-batch is retryable; the rest keep going."
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =13
+                                                Text: ="Runs in sub-batches of 25, paced. A failed sub-batch is retryable; the rest keep going."
+                                          - lblBdSendPreviewHead:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Preview"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Preview"
+                                                Wrap: =false
+                                          - lblBdSendPreview:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Selected row preview"
+                                                AutoHeight: =true
+                                                Color: =RGBA(26, 26, 26, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: |-
+                                                  =If(IsBlank(varBdSel), "Select a row to preview the rendered pre-alert.", "Subject: " & varBdSel.RenderSubject & "   Recipient: " & varBdSel.Email & "   Body: " & Left(varBdSel.RenderBody, 160))
+                                          - lblBdGuardMode:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Test mode and allow-list"
+                                                AutoHeight: =true
+                                                Color: =RGBA(214, 74, 0, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: |-
+                                                  =If(varTestMode, "TEST MODE · allow-list: " & varAllowlist, "LIVE MODE · mail goes to the real consignee.")
+                                          - lblBdGuardDecision:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Allow-list decision for the selected row"
+                                                AutoHeight: =true
+                                                Color: =If(IsBlank(varBdSel), RGBA(120, 120, 132, 1), If(!varTestMode, RGBA(214, 74, 0, 1), If(Find(";" & Lower(Trim(varBdSel.Email)) & ";", varAllowlist) > 0, RGBA(90, 90, 102, 1), RGBA(214, 74, 0, 1))))
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: |-
+                                                  =If(IsBlank(varBdSel), "No row selected.", If(!varTestMode, "LIVE send to " & varBdSel.Email & ".", If(Find(";" & Lower(Trim(varBdSel.Email)) & ";", varAllowlist) > 0, "Allow-listed: " & varBdSel.Email & " will receive the pre-alert.", "Not allow-listed: " & varBdSel.Email & " will be SKIPPED.")))
+                                    - conBdSendRight:
+                                        Control: GroupContainer
+                                        Variant: AutoLayout
+                                        Properties:
+                                          FillPortions: =0
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =8
+                                          LayoutMinHeight: =0
+                                          LayoutMinWidth: =0
+                                          Width: =320
+                                        Children:
+                                          - lblBdSendStatus:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: =If(varBdSendState = "IDLE", "Ready to send", varBdSendState)
+                                                AutoHeight: =true
+                                                Color: =RGBA(26, 26, 26, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =14
+                                                Text: =If(varBdSendState = "IDLE", "Ready to send", varBdSendState)
+                                                Wrap: =false
+                                          - lblBdSendStatusSub:
+                                              Control: ModernText
+                                              Properties:
+                                                AccessibleLabel: ="Sub-batch " & varBdSubBatch & " of " & varBdSubBatches & "   ·   " & varBdSentCount & " of " & varBdReadyCount & " sent"
+                                                AutoHeight: =true
+                                                Color: =RGBA(120, 120, 132, 1)
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Size: =12
+                                                Text: ="Sub-batch " & varBdSubBatch & " of " & varBdSubBatches & "   ·   " & varBdSentCount & " of " & varBdReadyCount & " sent"
+                                                Wrap: =false
+                                          - prgBdSend:
+                                              Control: ModernProgressBar
+                                              Properties:
+                                                AccessibleLabel: ="Send progress"
+                                                Height: =10
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =0
+                                                Value: =If(varBdReadyCount = 0, 0, varBdSentCount / varBdReadyCount * 100)
+                                          - btnBdSend:
+                                              Control: ModernButton
+                                              Properties:
+                                                AccessibleLabel: =If(varBdReadyCount = 0, "NOTHING READY TO SEND", "DRY RUN PRE-FLIGHT")
+                                                BasePaletteColor: =RGBA(255, 102, 0, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =48
+                                                Layout: =ButtonLayout.TextOnly
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =300
+                                                OnSelect: |-
+                                                  =Set(varBdSendState, "DRY RUN");
+                                                  Set(varBdSentCount, 0);
+                                                  Set(varBdSubBatch, 0);
+                                                  Notify(
+                                                      "Dry run: " & CountRows(Filter(colBdAll, BatchKey = varBdBatch && PfResult = "PASS" && Find(";" & Lower(Trim(Email)) & ";", varAllowlist) > 0)) & " of " & varBdReadyCount
+                                                      & " ready rows are allow-listed and would send. " & varBdBlockedCount & " rows are blocked. "
+                                                      & "The mail connector is not attached, so nothing was sent.",
+                                                      NotificationType.Warning
+                                                  )
+                                                Size: =15
+                                                Text: =If(varBdReadyCount = 0, "NOTHING READY TO SEND", "DRY RUN PRE-FLIGHT")
+                                          - btnBdReviewBlocked:
+                                              Control: ModernButton
+                                              Properties:
+                                                AccessibleLabel: ="REVIEW " & varBdBlockedCount & " BLOCKED"
+                                                Appearance: =ButtonAppearance.Outline
+                                                BasePaletteColor: =RGBA(77, 20, 140, 1)
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =48
+                                                Layout: =ButtonLayout.TextOnly
+                                                LayoutMinHeight: =0
+                                                LayoutMinWidth: =300
+                                                OnSelect: =Navigate(ScrNeedsAttention, ScreenTransition.None)
+                                                Size: =15
+                                                Text: ="REVIEW " & varBdBlockedCount & " BLOCKED"

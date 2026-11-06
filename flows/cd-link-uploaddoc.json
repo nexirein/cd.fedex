@@ -1,0 +1,143 @@
+{
+  "name": "CD-Link-UploadDoc",
+  "description": "HTTP triggered flow to handle document upload from customer token page",
+  "triggers": [
+    {
+      "type": "Request",
+      "kind": "Http",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" },
+          "fileName": { "type": "string" },
+          "contentType": { "type": "string" },
+          "contentBytes": { "type": "string" }
+        },
+        "required": ["token", "fileName", "contentBytes"]
+      },
+      "method": "POST",
+      "relativePath": "/UploadDoc"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Get_shipment_by_token",
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "GetItems",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+          "table": "CD_Shipment",
+          "$filter": "LinkToken eq '@{triggerBody()?['token']}'",
+          "$top": 1
+        }
+      }
+    },
+    {
+      "name": "Check_shipment_exists",
+      "type": "If",
+      "expression": {
+        "and": [
+          {
+            "greater": [
+              "@length(outputs('Get_shipment_by_token')?['body/value'])",
+              0
+            ]
+          }
+        ]
+      },
+      "actions": {
+        "Create_file": {
+          "name": "Create_file",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "CreateFile",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+              "folderPath": "/Shared Documents/ClearanceDeskUploads",
+              "name": "@{concat(first(outputs('Get_shipment_by_token')?['body/value'])?['Title'], '_', utcNow('yyyyMMddHHmmss'), '_', triggerBody()?['fileName'])}",
+              "body": "@base64ToBinary(triggerBody()?['contentBytes'])"
+            }
+          }
+        },
+        "Create_item_CD_Document": {
+          "name": "Create_item_CD_Document",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PostItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+              "table": "CD_Document",
+              "item": {
+                "Title": "@{triggerBody()?['fileName']}",
+                "AWB": "@{first(outputs('Get_shipment_by_token')?['body/value'])?['Title']}",
+                "FileName": "@{triggerBody()?['fileName']}",
+                "Source": "PORTAL"
+              }
+            }
+          }
+        },
+        "Create_item_CD_ShipmentEvent": {
+          "name": "Create_item_CD_ShipmentEvent",
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_sharepointonline",
+              "operationId": "PostItem",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+            },
+            "parameters": {
+              "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+              "table": "CD_ShipmentEvent",
+              "item": {
+                "Title": "DOC_RECEIVED",
+                "AWB": "@{first(outputs('Get_shipment_by_token')?['body/value'])?['Title']}",
+                "EventType": "DOC_RECEIVED",
+                "Actor": "CUSTOMER"
+              }
+            }
+          }
+        },
+        "Response_200": {
+          "name": "Response_200",
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": {
+              "success": true,
+              "message": "Document uploaded successfully"
+            }
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "Response_404": {
+            "name": "Response_404",
+            "type": "Response",
+            "kind": "Http",
+            "inputs": {
+              "statusCode": 404,
+              "body": {
+                "error": "Invalid token"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

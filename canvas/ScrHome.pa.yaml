@@ -1,0 +1,699 @@
+Screens:
+  ScrHome:
+    Properties:
+      Fill: =RGBA(245, 246, 248, 1)
+    Children:
+      - conHomeRoot:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(245, 246, 248, 1)
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Horizontal
+            Width: =Parent.Width
+          Children:
+            - conHomeSidebar:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =16
+                  PaddingTop: =18
+                  Width: =252
+                Children:
+                  - conHomeSbBrand:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                      Children:
+                        - conHomeSbLogo:
+                            Control: GroupContainer
+                            Variant: ManualLayout
+                            Properties:
+                              Fill: =RGBA(255, 102, 0, 1)
+                              FillPortions: =0
+                              Height: =40
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              RadiusBottomLeft: =10
+                              RadiusBottomRight: =10
+                              RadiusTopLeft: =10
+                              RadiusTopRight: =10
+                              Width: =40
+                            Children:
+                              - lblHomeSbLogo:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="FedEx logo"
+                                    Align: =Align.Center
+                                    Color: =RGBA(255, 255, 255, 1)
+                                    FontWeight: =FontWeight.Bold
+                                    Height: =40
+                                    Size: =16
+                                    Text: ="FX"
+                                    Width: =40
+                        - conHomeSbName:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =1
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblHomeSbName:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Clearance Desk"
+                                    AutoHeight: =true
+                                    Color: =RGBA(77, 20, 140, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =18
+                                    Text: ="Clearance Desk"
+                                    Wrap: =false
+                              - lblHomeSbSub:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Cargo, Phase 1"
+                                    AutoHeight: =true
+                                    Color: =RGBA(120, 120, 132, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =12
+                                    Text: ="Cargo · Phase 1"
+                                    Wrap: =false
+                  - conHomeSbDividerTop:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(229, 231, 235, 1)
+                        FillPortions: =0
+                        Height: =1
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conHomeSbNav:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =2
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =12
+                        PaddingRight: =12
+                        PaddingTop: =12
+                      Children:
+                        - btnHomeNavHome:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Home"
+                              Align: =Align.Left
+                              BasePaletteColor: =RGBA(77, 20, 140, 1)
+                              FontWeight: =FontWeight.Semibold
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrHome, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Home"
+                        - btnHomeNavUpload:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Upload batch"
+                              Align: =Align.Left
+                              Appearance: =ButtonAppearance.Subtle
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrBatchUpload, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Upload batch"
+                        - btnHomeNavBoard:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Batch board"
+                              Align: =Align.Left
+                              Appearance: =ButtonAppearance.Subtle
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              OnSelect: =Navigate(ScrBatchBoard, ScreenTransition.None)
+                              Size: =15
+                              Text: ="Batch board"
+                  - conHomeSbSpacer:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conHomeSbDividerBot:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(229, 231, 235, 1)
+                        FillPortions: =0
+                        Height: =1
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                  - conHomeSbFoot:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =3
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                        PaddingTop: =14
+                      Children:
+                        - lblHomeSbUser:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Signed in as bipul.sikder at fedex.com"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="bipul.sikder@fedex.com"
+                              Wrap: =false
+                        - lblHomeSbVer:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Demo build version 0.1"
+                              AutoHeight: =true
+                              Color: =RGBA(150, 150, 160, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =11
+                              Text: ="Demo build · v0.1"
+                              Wrap: =false
+            - conHomeSidebarRule:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(229, 231, 235, 1)
+                  FillPortions: =0
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Width: =1
+            - conHomeMain:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(245, 246, 248, 1)
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                Children:
+                  - conHomeTopBar:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        Height: =72
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =16
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingLeft: =28
+                        PaddingRight: =28
+                        Width: =Parent.Width
+                      Children:
+                        - conHomeTopLeft:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblHomePageTitle:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Home"
+                                    AutoHeight: =true
+                                    Color: =RGBA(26, 26, 26, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =22
+                                    Text: ="Home"
+                                    Wrap: =false
+                              - lblHomeBadgeTest:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: ="Test mode"
+                                    Appearance: ='BadgeCanvas.Appearance'.Filled
+                                    Content: ="TEST MODE"
+                                    Height: =26
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =120
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: ='BadgeCanvas.ThemeColor'.Warning
+                        - conHomeTopRight:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =20
+                              LayoutJustifyContent: =LayoutJustifyContent.End
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - togHomeAi:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="AI automation switch"
+                                    Default: =varAiEnabled
+                                    Height: =40
+                                    Label: ="AI"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =96
+                                    OnCheck: |-
+                                      =Set(varAiEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "aiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "aiEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "aiEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varAiEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "aiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "aiEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "aiEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togHomeSend:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Auto send switch"
+                                    Default: =varAutoSendEnabled
+                                    Height: =40
+                                    Label: ="Send"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =106
+                                    OnCheck: |-
+                                      =Set(varAutoSendEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "autoSendEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "autoSendEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "autoSendEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varAutoSendEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "autoSendEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "autoSendEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "autoSendEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togHomeFollowup:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Follow up switch"
+                                    Default: =varFollowupEnabled
+                                    Height: =40
+                                    Label: ="Follow-up"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =122
+                                    OnCheck: |-
+                                      =Set(varFollowupEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "followupEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "followupEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "followupEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varFollowupEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "followupEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "followupEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "followupEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                              - togHomeCall:
+                                  Control: ModernToggle
+                                  Properties:
+                                    AccessibleLabel: ="Call AI switch"
+                                    Default: =varCallAiEnabled
+                                    Height: =40
+                                    Label: ="Call AI"
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =112
+                                    OnCheck: |-
+                                      =Set(varCallAiEnabled, true);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "callAiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "callAiEnabled", SettingValue: "Yes"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "callAiEnabled"), {SettingValue: "Yes"}))
+                                    OnUncheck: |-
+                                      =Set(varCallAiEnabled, false);
+                                      If(IsBlank(LookUp(CD_Setting, Title = "callAiEnabled")),
+                                         Patch(CD_Setting, Defaults(CD_Setting), {Title: "callAiEnabled", SettingValue: "No"}),
+                                         Patch(CD_Setting, LookUp(CD_Setting, Title = "callAiEnabled"), {SettingValue: "No"}))
+                                    Size: =14
+                  - conHomeAccent:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 102, 0, 1)
+                        FillPortions: =0
+                        Height: =4
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        Width: =Parent.Width
+                  - conHomeContent:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =18
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        LayoutOverflowY: =LayoutOverflow.Scroll
+                        PaddingBottom: =40
+                        PaddingLeft: =28
+                        PaddingRight: =28
+                        PaddingTop: =22
+                      Children:
+                        - conHomeHero:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              Height: =62
+                              LayoutDirection: =LayoutDirection.Vertical
+                              LayoutGap: =4
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblHomeWelcome:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Good day Team Lead"
+                                    AutoHeight: =true
+                                    Color: =RGBA(26, 26, 26, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =22
+                                    Text: ="Good day, Team Lead"
+                                    Wrap: =false
+                              - lblHomeWelcomeSub:
+                                  Control: ModernText
+                                  Properties:
+                                    AccessibleLabel: ="Here is the cargo clearance desk at a glance. Read the numbers, then act."
+                                    AutoHeight: =true
+                                    Color: =RGBA(90, 90, 102, 1)
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    Size: =14
+                                    Text: ="Here is the cargo clearance desk at a glance. Read the numbers, then act."
+                                    Wrap: =false
+                        - lblHomeStatsHeading:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Today at a glance"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =17
+                              Text: ="Today at a glance"
+                              Wrap: =false
+                        - conHomeStats:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              Height: =188
+                              LayoutAlignItems: =LayoutAlignItems.Stretch
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =14
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - HomStatRows:
+                                  Control: ModernCard
+                                  Properties:
+                                    AccessibleLabel: ="Rows in, records uploaded from UBOND or CONSOL"
+                                    BorderRadius: =14
+                                    Description: ="Uploaded from UBOND / CONSOL"
+                                    DescriptionColor: =RGBA(120, 120, 132, 1)
+                                    DescriptionSize: =11
+                                    DropShadow: =DropShadow.Light
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =1
+                                    HeaderImage: =Blank()
+                                    Image: =Blank()
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Navigate(ScrBatchBoard, ScreenTransition.None, {locStat: "RowsIn"})
+                                    Subtitle: ="Rows in"
+                                    SubtitleColor: =RGBA(26, 26, 26, 1)
+                                    SubtitleSize: =13
+                                    Title: =Text(Coalesce(Sum(colBatch, RowCountIn), 0), "#,##0")
+                                    TitleColor: =RGBA(77, 20, 140, 1)
+                                    TitleSize: =32
+                              - HomStatSent:
+                                  Control: ModernCard
+                                  Properties:
+                                    AccessibleLabel: ="Pre-alerts sent, pre-alert emails dispatched"
+                                    BorderRadius: =14
+                                    Description: ="Pre-alert emails dispatched"
+                                    DescriptionColor: =RGBA(120, 120, 132, 1)
+                                    DescriptionSize: =11
+                                    DropShadow: =DropShadow.Light
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =1
+                                    HeaderImage: =Blank()
+                                    Image: =Blank()
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Navigate(ScrBatchBoard, ScreenTransition.None, {locStat: "Sent"})
+                                    Subtitle: ="Pre-alerts sent"
+                                    SubtitleColor: =RGBA(26, 26, 26, 1)
+                                    SubtitleSize: =13
+                                    Title: =Text(Coalesce(Sum(colBatch, SentCount), 0), "#,##0")
+                                    TitleColor: =RGBA(77, 20, 140, 1)
+                                    TitleSize: =32
+                              - HomStatDocs:
+                                  Control: ModernCard
+                                  Properties:
+                                    AccessibleLabel: ="Docs received, documents received from CHA"
+                                    BorderRadius: =14
+                                    Description: ="Documents received from CHA"
+                                    DescriptionColor: =RGBA(120, 120, 132, 1)
+                                    DescriptionSize: =11
+                                    DropShadow: =DropShadow.Light
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =1
+                                    HeaderImage: =Blank()
+                                    Image: =Blank()
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Navigate(ScrBatchBoard, ScreenTransition.None)
+                                    Subtitle: ="Docs received"
+                                    SubtitleColor: =RGBA(26, 26, 26, 1)
+                                    SubtitleSize: =13
+                                    Title: =Text(Coalesce(Sum(colBatch, DocsReceivedCount), 0), "#,##0")
+                                    TitleColor: =RGBA(77, 20, 140, 1)
+                                    TitleSize: =32
+                              - HomStatNeed:
+                                  Control: ModernCard
+                                  Properties:
+                                    AccessibleLabel: ="Need attention, cases requiring a person"
+                                    BorderRadius: =14
+                                    Description: ="Cases requiring a person"
+                                    DescriptionColor: =RGBA(120, 120, 132, 1)
+                                    DescriptionSize: =11
+                                    DropShadow: =DropShadow.Light
+                                    Fill: =RGBA(255, 244, 235, 1)
+                                    FillPortions: =1
+                                    HeaderImage: =Blank()
+                                    Image: =Blank()
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: |-
+                                      =Navigate(ScrBatchBoard, ScreenTransition.None, {locStat: "Need"})
+                                    Subtitle: ="Need attention"
+                                    SubtitleColor: =RGBA(26, 26, 26, 1)
+                                    SubtitleSize: =13
+                                    Title: =Text(Coalesce(CountRows(colCase), 0), "#,##0")
+                                    TitleColor: =RGBA(214, 74, 0, 1)
+                                    TitleSize: =32
+                              - HomStatClaimed:
+                                  Control: ModernCard
+                                  Properties:
+                                    AccessibleLabel: ="Claimed, shipments claimed by CHA"
+                                    BorderRadius: =14
+                                    Description: ="Shipments claimed by CHA"
+                                    DescriptionColor: =RGBA(120, 120, 132, 1)
+                                    DescriptionSize: =11
+                                    DropShadow: =DropShadow.Light
+                                    Fill: =RGBA(255, 255, 255, 1)
+                                    FillPortions: =1
+                                    HeaderImage: =Blank()
+                                    Image: =Blank()
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =0
+                                    OnSelect: =Navigate(ScrBatchBoard, ScreenTransition.None)
+                                    Subtitle: ="Claimed"
+                                    SubtitleColor: =RGBA(26, 26, 26, 1)
+                                    SubtitleSize: =13
+                                    Title: =Text(Coalesce(CountRows(Filter(colShipment, !IsBlank(ClaimedAt))), 0), "#,##0")
+                                    TitleColor: =RGBA(77, 20, 140, 1)
+                                    TitleSize: =32
+                        - lblHomeActionsHeading:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Batch actions"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =17
+                              Text: ="Batch actions"
+                              Wrap: =false
+                        - conHomeActionButtons:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              Height: =50
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =12
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - btnHomeUploadUbond:
+                                  Control: ModernButton
+                                  Properties:
+                                    AccessibleLabel: ="Upload UBOND batch"
+                                    BasePaletteColor: =RGBA(255, 102, 0, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =50
+                                    Layout: =ButtonLayout.TextOnly
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =220
+                                    OnSelect: |-
+                                      =Navigate(ScrBatchUpload, ScreenTransition.None, {locPipeline: "UBOND"})
+                                    Size: =15
+                                    Text: ="Upload UBOND batch"
+                              - btnHomeUploadConsol:
+                                  Control: ModernButton
+                                  Properties:
+                                    AccessibleLabel: ="Upload CONSOL batch"
+                                    Appearance: =ButtonAppearance.Outline
+                                    BasePaletteColor: =RGBA(77, 20, 140, 1)
+                                    FontWeight: =FontWeight.Semibold
+                                    Height: =50
+                                    Layout: =ButtonLayout.TextOnly
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =230
+                                    OnSelect: |-
+                                      =Navigate(ScrBatchUpload, ScreenTransition.None, {locPipeline: "CONSOL"})
+                                    Size: =15
+                                    Text: ="Upload CONSOL batch"
+                        - lblHomeSystemHeading:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="System status"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =17
+                              Text: ="System status"
+                              Wrap: =false
+                        - conHomeSystem:
+                            Control: GroupContainer
+                            Variant: AutoLayout
+                            Properties:
+                              FillPortions: =0
+                              Height: =34
+                              LayoutAlignItems: =LayoutAlignItems.Center
+                              LayoutDirection: =LayoutDirection.Horizontal
+                              LayoutGap: =10
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                            Children:
+                              - lblHomeSysTest:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: ="Test mode status"
+                                    Appearance: ='BadgeCanvas.Appearance'.Filled
+                                    Content: =If(varTestMode, "Test mode ON", "Test mode OFF")
+                                    Height: =28
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =150
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: =If(varTestMode, 'BadgeCanvas.ThemeColor'.Warning, 'BadgeCanvas.ThemeColor'.Success)
+                              - lblHomeSysSp:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: ="SharePoint connected"
+                                    Appearance: ='BadgeCanvas.Appearance'.Tint
+                                    Content: ="SharePoint connected"
+                                    Height: =28
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =200
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: ='BadgeCanvas.ThemeColor'.Success
+                              - lblHomeSysLists:
+                                  Control: Badge
+                                  Properties:
+                                    AccessibleLabel: ="18 lists loaded"
+                                    Appearance: ='BadgeCanvas.Appearance'.Tint
+                                    Content: ="18 lists loaded"
+                                    Height: =28
+                                    LayoutMinHeight: =0
+                                    LayoutMinWidth: =170
+                                    Shape: ='BadgeCanvas.Shape'.Rounded
+                                    ThemeColor: ='BadgeCanvas.ThemeColor'.Informative
+                        - lblHomeAsOf:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Data as of now"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="As of " & Text(Now(), "dd mmm yyyy hh:mm")
+                              Wrap: =false

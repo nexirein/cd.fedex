@@ -1,0 +1,34 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+*.log
+
+# Dependencies / builds (any level)
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+.turbo/
+.vercel/
+
+# Env & secrets
+.env
+.env.*
+*.env
+!.env.example
+!**/.env.example
+
+# Supabase local
+.supabase/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Local tooling/backups
+.flowagent/

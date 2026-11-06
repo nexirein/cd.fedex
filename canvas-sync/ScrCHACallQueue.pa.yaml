@@ -1,0 +1,68 @@
+Screens:
+  ScrCHACallQueue:
+    Properties:
+      Fill: =RGBA(245, 246, 248, 1)
+    Children:
+      - conScrCHACallQueueStub:
+          Control: GroupContainer
+          Variant: ManualLayout
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height - 96
+            PaddingLeft: =28
+            PaddingRight: =28
+            PaddingTop: =28
+            RadiusBottomLeft: =14
+            RadiusBottomRight: =14
+            RadiusTopLeft: =14
+            RadiusTopRight: =14
+            Width: =Parent.Width - 96
+            X: =48
+            Y: =48
+          Children:
+            - lblScrCHACallQueueTitle:
+                Control: ModernText
+                Properties:
+                  AccessibleLabel: ="CHA call queue"
+                  Color: =RGBA(26, 26, 26, 1)
+                  FontWeight: =FontWeight.Semibold
+                  Height: =40
+                  Size: =24
+                  Text: ="CHA call queue"
+                  Width: =760
+                  X: =28
+                  Y: =28
+            - lblScrCHACallQueueState:
+                Control: ModernText
+                Properties:
+                  AccessibleLabel: ="Not built yet"
+                  Color: =RGBA(214, 74, 0, 1)
+                  FontWeight: =FontWeight.Semibold
+                  Height: =28
+                  Size: =13
+                  Text: ="Not built yet"
+                  Width: =200
+                  X: =28
+                  Y: =74
+            - lblScrCHACallQueueNote:
+                Control: ModernText
+                Properties:
+                  AccessibleLabel: ="What this screen will do"
+                  Color: =RGBA(90, 90, 102, 1)
+                  Height: =90
+                  Text: ="Phase 1 ships two working screens, Upload batch and the Batch board. This screen is for shipments waiting on a broker call, and it is deliberately not wired yet so nothing here pretends to work."
+                  Width: =760
+                  X: =28
+                  Y: =108
+            - btnScrCHACallQueueBack:
+                Control: ModernButton
+                Properties:
+                  AccessibleLabel: ="Back to Home"
+                  BasePaletteColor: =RGBA(77, 20, 140, 1)
+                  Height: =44
+                  Layout: =ButtonLayout.TextOnly
+                  OnSelect: =Navigate(ScrHome, ScreenTransition.None)
+                  Text: ="Back to Home"
+                  Width: =180
+                  X: =28
+                  Y: =220

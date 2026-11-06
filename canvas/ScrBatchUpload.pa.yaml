@@ -1,0 +1,319 @@
+Screens:
+  ScrBatchUpload:
+    Properties:
+      Fill: =RGBA(245, 246, 248, 1)
+    Children:
+      - conScrBatchUploadRoot:
+          Control: GroupContainer
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(245, 246, 248, 1)
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            Width: =Parent.Width
+          Children:
+            - conScrBatchUploadTopBar:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  Height: =72
+                  LayoutAlignItems: =LayoutAlignItems.Center
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =16
+                  LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  PaddingLeft: =28
+                  PaddingRight: =28
+                  Width: =Parent.Width
+                Children:
+                  - conScrBatchUploadTopLeft:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                      Children:
+                        - lblScrBatchUploadBadge:
+                            Control: Badge
+                            Properties:
+                              AccessibleLabel: ="Batch import"
+                              Appearance: ='BadgeCanvas.Appearance'.Tint
+                              Content: ="BATCH IMPORT"
+                              Height: =26
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =110
+                              Shape: ='BadgeCanvas.Shape'.Rounded
+                              ThemeColor: ='BadgeCanvas.ThemeColor'.Brand
+                        - lblScrBatchUploadPageTitle:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Upload batch"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =22
+                              Text: ="Upload batch"
+                              Wrap: =false
+                  - btnScrBatchUploadNavBack:
+                      Control: ModernButton
+                      Properties:
+                        AccessibleLabel: ="Back to Batch Board"
+                        BasePaletteColor: =RGBA(77, 20, 140, 1)
+                        Height: =40
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        OnSelect: =Navigate(ScrBatchBoard, ScreenTransition.None)
+                        Text: ="Back to Batch Board"
+                        Width: =200
+            - conScrBatchUploadAccent:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(255, 102, 0, 1)
+                  FillPortions: =0
+                  Height: =4
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  Width: =Parent.Width
+            - conScrBatchUploadContent:
+                Control: GroupContainer
+                Variant: AutoLayout
+                Properties:
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =18
+                  LayoutMinHeight: =0
+                  LayoutMinWidth: =0
+                  LayoutOverflowY: =LayoutOverflow.Scroll
+                  PaddingBottom: =40
+                  PaddingLeft: =28
+                  PaddingRight: =28
+                  PaddingTop: =22
+                Children:
+                  - conScrBatchUploadHero:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =6
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =20
+                        PaddingLeft: =24
+                        PaddingRight: =24
+                        PaddingTop: =20
+                        RadiusBottomLeft: =14
+                        RadiusBottomRight: =14
+                        RadiusTopLeft: =14
+                        RadiusTopRight: =14
+                      Children:
+                        - lblScrBatchUploadHeroTitle:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Upload UBOND or CONSOL Excel"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =18
+                              Text: ="Upload UBOND or CONSOL Excel"
+                              Wrap: =false
+                        - lblScrBatchUploadHeroSub:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Drop your workbook to create a batch. Consignee email is read from Standard Remarks as per the import map."
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =13
+                              Text: ="Drop your workbook to create a batch. Consignee email is read from Standard Remarks. ConsigneeEmailID is not used as an email address."
+                  - conScrBatchUploadDropzone:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =10
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =28
+                        PaddingLeft: =24
+                        PaddingRight: =24
+                        PaddingTop: =28
+                        RadiusBottomLeft: =14
+                        RadiusBottomRight: =14
+                        RadiusTopLeft: =14
+                        RadiusTopRight: =14
+                      Children:
+                        - lblScrBatchUploadDropIcon:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Upload icon"
+                              Align: =Align.Center
+                              AutoHeight: =true
+                              Color: =RGBA(77, 20, 140, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =16
+                              Text: ="UPLOAD"
+                              Wrap: =false
+                        - lblScrBatchUploadDropTitle:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Select Excel file"
+                              Align: =Align.Center
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =16
+                              Text: ="Select .XLSX file from your computer"
+                              Wrap: =false
+                        - lblScrBatchUploadDropSub:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Accepted formats"
+                              Align: =Align.Center
+                              AutoHeight: =true
+                              Color: =RGBA(120, 120, 132, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =12
+                              Text: ="Accepted .xlsx only"
+                              Wrap: =false
+                        - btnScrBatchUploadPick:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Browse files"
+                              BasePaletteColor: =RGBA(77, 20, 140, 1)
+                              Height: =44
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Text: ="Browse files"
+                              Width: =160
+                  - conScrBatchUploadFileCard:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =16
+                        PaddingLeft: =20
+                        PaddingRight: =20
+                        PaddingTop: =16
+                        RadiusBottomLeft: =14
+                        RadiusBottomRight: =14
+                        RadiusTopLeft: =14
+                        RadiusTopRight: =14
+                      Children:
+                        - lblScrBatchUploadFileName:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Selected file"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FillPortions: =1
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =13
+                              Text: ="No file selected"
+                              Wrap: =false
+                        - btnScrBatchUploadValidate:
+                            Control: ModernButton
+                            Properties:
+                              AccessibleLabel: ="Validate and create batch"
+                              BasePaletteColor: =RGBA(77, 20, 140, 1)
+                              Height: =42
+                              Layout: =ButtonLayout.TextOnly
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Text: ="Validate & Create Batch"
+                              Width: =200
+                  - conScrBatchUploadRules:
+                      Control: GroupContainer
+                      Variant: AutoLayout
+                      Properties:
+                        Fill: =RGBA(255, 255, 255, 1)
+                        FillPortions: =0
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =12
+                        LayoutMinHeight: =0
+                        LayoutMinWidth: =0
+                        PaddingBottom: =22
+                        PaddingLeft: =24
+                        PaddingRight: =24
+                        PaddingTop: =20
+                        RadiusBottomLeft: =14
+                        RadiusBottomRight: =14
+                        RadiusTopLeft: =14
+                        RadiusTopRight: =14
+                      Children:
+                        - lblScrBatchUploadRulesTitle:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Import rules"
+                              AutoHeight: =true
+                              Color: =RGBA(26, 26, 26, 1)
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =16
+                              Text: ="Import rules"
+                              Wrap: =false
+                        - lblScrBatchUploadRule1:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Email from Standard Remarks"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =13
+                              Text: ="1. Consignee email is taken from the Standard Remarks column. ConsigneeEmailID (often a phone number) is never used as an email address."
+                        - lblScrBatchUploadRule2:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Non-sendable types"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =13
+                              Text: ="2. HOLD, Calling, and a bare FEBRK are recorded as non-sendable with the reason. They will not be sent as pre-alerts."
+                        - lblScrBatchUploadRule3:
+                            Control: ModernText
+                            Properties:
+                              AccessibleLabel: ="Broker required for FEBRK"
+                              AutoHeight: =true
+                              Color: =RGBA(90, 90, 102, 1)
+                              LayoutMinHeight: =0
+                              LayoutMinWidth: =0
+                              Size: =13
+                              Text: ="3. A broker must be named before a FEBRK row can send. The import never guesses one."

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FedEx Clearance Desk | Customer Package</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fedex-purple: #4d148c;
+      --fedex-orange: #ff6600;
+      --bg: #f7f7fa;
+      --card: #ffffff;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5f5f6b;
+      --border: #e5e5ea;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--fedex-purple) 0%, #5f1db3 100%);
+      color: #fff;
+      padding: 20px 24px;
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fedex-orange);
+      box-shadow: 0 0 0 6px rgba(255, 102, 0, 0.25);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .awb-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .awb-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+    }
+
+    .awb-value {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px -30px rgba(77, 20, 140, 0.4);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 28px 0 28px;
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-secondary);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      padding: 20px 28px 28px 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    .field-value {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      padding: 0 28px 28px 28px;
+      gap: 12px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .list-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .list-item-title {
+      font-weight: 500;
+    }
+
+    .list-item-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-required {
+      background: rgba(245, 158, 11, 0.16);
+      color: #b45309;
+    }
+
+    .status-uploaded {
+      background: rgba(34, 197, 94, 0.16);
+      color: #15803d;
+    }
+
+    .status-missing {
+      background: rgba(239, 68, 68, 0.16);
+      color: #b91c1c;
+    }
+
+    .upload-zone {
+      margin: 0 28px 28px 28px;
+      border: 1px dashed rgba(77, 20, 140, 0.4);
+      border-radius: 12px;
+      padding: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upload-zone.dragover {
+      background: rgba(77, 20, 140, 0.04);
+    }
+
+    .upload-button {
+      appearance: none;
+      border: none;
+      background: var(--fedex-purple);
+      color: #fff;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .upload-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    .notice {
+      margin: 0 28px 28px 28px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: rgba(77, 20, 140, 0.08);
+      color: var(--fedex-purple);
+      font-size: 14px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .state-screen {
+      max-width: 640px;
+      margin: 80px auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 24px;
+    }
+
+    .state-title {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .state-subtitle {
+      color: var(--text-secondary);
+    }
+
+    [data-state="loading"] .app,
+    [data-state="error"] .app,
+    [data-state="success"] .app {
+      display: none;
+    }
+
+    [data-state="app"] .loading,
+    [data-state="app"] .error {
+      display: none;
+    }
+
+    .loading,
+    .error {
+      display: none;
+    }
+
+    [data-state="loading"] .loading {
+      display: flex;
+    }
+
+    [data-state="error"] .error {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body data-state="loading">
+  <div class="loading state-screen">
+    <div class="state-title">Loading your clearance package</div>
+    <div class="state-subtitle">Please wait while we fetch the details for this link.</div>
+  </div>
+
+  <div class="error state-screen">
+    <div class="state-title">This link is not valid or has expired</div>
+    <div class="state-subtitle">If you believe this is a mistake, please reply to the pre-alert email you received.</div>
+  </div>
+
+  <div class="app">
+    <header>
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-text">
+            <span class="brand-title">FedEx Clearance Desk</span>
+            <span class="brand-subtitle">Pre-Alert Document Upload</span>
+          </div>
+        </div>
+        <div class="awb-pill">
+          <span class="awb-label">AWB</span>
+          <span class="awb-value" id="awbValue">-</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <header class="card-header">
+          <div class="card-title-group">
+            <span class="eyebrow">Shipment Package</span>
+            <h1 class="card-title" id="companyName">-</h1>
+            <p class="card-subtitle">Review your shipment details below</p>
+          </div>
+        </header>
+        <div class="grid">
+          <article class="field">
+            <span class="field-label">Consignee</span>
+            <span class="field-value" id="consigneeName">-</span>
+          </article>
+          <article class="field">
+            <span class="field-label">Location</span>
+            <span class="field-value" id="location">-</span>
+          </article>
+          <article class="field">
+            <span class="field-label">Clearance Type</span>
+            <span class="field-value" id="clearanceType">-</span>
+          </article>
+          <article class="field">
+            <span class="field-label">Broker</span>
+            <span class="field-value" id="broker">-</span>
+          </article>
+          <article class="field">
+            <span class="field-label">Pieces / Weight</span>
+            <span class="field-value" id="piecesWeight">-</span>
+          </article>
+          <article class="field">
+            <span class="field-label">Value / Currency</span>
+            <span class="field-value" id="valueCurrency">-</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <header class="card-header">
+          <div class="card-title-group">
+            <span class="eyebrow">Document Checklist</span>
+            <h2 class="card-title">Required Documents</h2>
+            <p class="card-subtitle">Upload the missing documents below</p>
+          </div>
+        </header>
+        <div class="list" id="checklistList"></div>
+      </section>
+
+      <section class="card">
+        <header class="card-header">
+          <div class="card-title-group">
+            <span class="eyebrow">Upload Documents</span>
+            <h2 class="card-title">Upload here</h2>
+            <p class="card-subtitle">Accepted formats: PDF, JPG, JPEG, PNG (Max 15 MB)</p>
+          </div>
+        </header>
+        <div class="upload-zone" id="uploadZone">
+          <strong>Drag & drop files here</strong>
+          <span>or</span>
+          <button class="upload-button" id="uploadButton">Choose files</button>
+          <input type="file" class="hidden-input" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png">
+        </div>
+        <div class="notice">Only upload documents requested for this shipment. All uploads are logged against your AWB.</div>
+      </section>
+    </main>
+
+    <footer>
+      FedEx Clearance Desk &middot; This is a secure tokenized link &middot; Do not share this link
+    </footer>
+  </div>
+
+  <script>
+    const GET_PACKAGE_URL = "https://defaultb945c813dce641f884575a12c2fe15.bf.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/17/workflows/12c8bbfc85bb4e53a599ff41bf8790cb/triggers/manual/paths/invoke?api-version=1";
+    const UPLOAD_DOC_URL = "https://defaultb945c813dce641f884575a12c2fe15.bf.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/19/workflows/57b679bbccea4b89be72506c1d84d2ac/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=akc1N3pc3Q8I5n5_4EkYq8zI6gjNSUMBnfcb-BWaQZQ";
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("t");
+
+    const body = document.body;
+    const awbValue = document.getElementById("awbValue");
+    const companyName = document.getElementById("companyName");
+    const consigneeName = document.getElementById("consigneeName");
+    const location = document.getElementById("location");
+    const clearanceType = document.getElementById("clearanceType");
+    const broker = document.getElementById("broker");
+    const piecesWeight = document.getElementById("piecesWeight");
+    const valueCurrency = document.getElementById("valueCurrency");
+    const checklistList = document.getElementById("checklistList");
+    const uploadZone = document.getElementById("uploadZone");
+    const uploadButton = document.getElementById("uploadButton");
+    const fileInput = document.getElementById("fileInput");
+
+    async function loadPackage() {
+      if (!token) {
+        body.dataset.state = "error";
+        return;
+      }
+
+      try {
+        const res = await fetch(GET_PACKAGE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: token })
+        });
+
+        if (!res.ok) {
+          body.dataset.state = "error";
+          return;
+        }
+
+        const data = await res.json();
+        render(data);
+        body.dataset.state = "app";
+      } catch (err) {
+        body.dataset.state = "error";
+      }
+    }
+
+    function render(data) {
+      awbValue.textContent = data.awb || "-";
+      companyName.textContent = data.company || "-";
+      consigneeName.textContent = data.consigneeName || "-";
+      location.textContent = data.location || "-";
+      clearanceType.textContent = data.clearanceType || "-";
+      broker.textContent = data.broker || "Not Applicable";
+      piecesWeight.textContent = (data.pieces ? data.pieces + " Pcs" : "-") + " / " + (data.weight ? data.weight + " KG" : "-");
+      valueCurrency.textContent = (data.invoiceValue ? data.invoiceValue : "-") + " " + (data.currency || "INR");
+
+      checklistList.innerHTML = "";
+      (data.checklist || []).forEach(item => {
+        const el = document.createElement("div");
+        el.className = "list-item";
+
+        const info = document.createElement("div");
+        info.className = "list-item-info";
+
+        const title = document.createElement("span");
+        title.className = "list-item-title";
+        title.textContent = item.name;
+
+        const subtitle = document.createElement("span");
+        subtitle.className = "list-item-subtitle";
+        subtitle.textContent = item.required ? "Required for clearance" : "Reference";
+
+        info.appendChild(title);
+        info.appendChild(subtitle);
+
+        const pill = document.createElement("span");
+        pill.className = "status-pill " + (item.status === "UPLOADED" ? "status-uploaded" : item.status === "MISSING" ? "status-missing" : "status-required");
+        pill.textContent = item.status === "UPLOADED" ? "Uploaded" : item.status === "MISSING" ? "Missing" : "Required";
+
+        el.appendChild(info);
+        el.appendChild(pill);
+        checklistList.appendChild(el);
+      });
+    }
+
+    uploadButton.addEventListener("click", () => fileInput.click());
+    uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("dragover"); });
+    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("dragover"));
+    uploadZone.addEventListener("drop", e => { e.preventDefault(); uploadZone.classList.remove("dragover"); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener("change", e => handleFiles(e.target.files));
+
+    async function handleFiles(files) {
+      if (!files.length) return;
+      uploadButton.disabled = true;
+      uploadButton.textContent = "Uploading...";
+
+      for (const file of files) {
+        try {
+          const reader = new FileReader();
+          const base64 = await new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          const res = await fetch(UPLOAD_DOC_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              token: token,
+              fileName: file.name,
+              contentType: file.type || "application/octet-stream",
+              contentBytes: base64
+            })
+          });
+
+          if (res.ok) {
+            alert("Uploaded: " + file.name + " - Thank you. We'll review this document.");
+          } else {
+            alert("Failed to upload: " + file.name + ". Please try again or reply to the email.");
+          }
+        } catch (e) {
+          alert("Error uploading: " + file.name);
+        }
+      }
+
+      uploadButton.disabled = false;
+      uploadButton.textContent = "Choose files";
+      fileInput.value = "";
+      loadPackage();
+    }
+
+    loadPackage();
+  </script>
+</body>
+
+</html>

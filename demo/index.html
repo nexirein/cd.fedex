@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FedEx Clearance Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">FedEx</div>
+          <div class="brand-app">Clearance Desk</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="#/dashboard" data-route="dashboard" class="nav-link active"><span class="nav-icon">▦</span>Dashboard</a>
+        <a href="#/batches" data-route="batches" class="nav-link"><span class="nav-icon">☰</span>Batches</a>
+        <a href="#/import" data-route="import" class="nav-link"><span class="nav-icon">↑</span>Import Batch</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="env-pill">TEST MODE · Allow-list active</div>
+        <div class="user-chip"><span class="avatar">BS</span><span>Bipul Sikder</span></div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 id="pageTitle">Dashboard</h1>
+          <div id="breadcrumbs" class="breadcrumbs"></div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn btn-secondary" id="resetDemoBtn" title="Reset demo data">Reset Demo</button>
+          <button class="btn btn-primary" id="newBatchBtn">+ New Batch</button>
+        </div>
+      </header>
+      <main id="main" class="main"></main>
+    </div>
+  </div>
+  <div id="drawerBackdrop" class="drawer-backdrop"></div>
+  <aside id="drawer" class="drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div>
+        <div class="eyebrow" id="drawerEyebrow">Shipment</div>
+        <h2 id="drawerTitle">—</h2>
+      </div>
+      <button class="icon-btn" id="drawerClose" aria-label="Close">✕</button>
+    </div>
+    <div id="drawerBody" class="drawer-body"></div>
+  </aside>
+  <div id="toastHost" class="toast-host"></div>
+  <script src="shared.js"></script>
+  <script src="agent.js"></script>
+</body>
+</html>

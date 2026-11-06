@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FedEx Clearance Desk | Shipment Documents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --purple:#4D148C; --orange:#FF6600; --bg:#f4f5f7; --surface:#fff; --border:#e3e6eb; --text:#1f2937; --muted:#667085; --success:#067647; --success-bg:#ecfdf3; --warn:#b54708; --warn-bg:#fffaeb; }
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    .top{background:linear-gradient(90deg,var(--purple),#6526a8);color:#fff;padding:18px 24px}
+    .top-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}.mark{width:10px;height:10px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 6px rgba(255,102,0,.22)}
+    .brand h1{margin:0;font-size:16px;font-weight:600}.brand p{margin:2px 0 0;font-size:12px;opacity:.82}
+    .awb .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.72}.awb .v{font-size:18px;font-weight:700;letter-spacing:.03em}
+    .wrap{max-width:980px;margin:24px auto;padding:0 24px 32px;display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.06)}
+    .head{padding:18px 20px 0}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#98a2b3;font-weight:600}
+    .head h2{margin:5px 0 4px;font-size:20px}.head p{margin:0;color:var(--muted);font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:18px 20px 20px}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}}
+    .field .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#98a2b3}.field .v{margin-top:3px;font-weight:500}
+    .list{padding:0 20px 20px;display:flex;flex-direction:column;gap:10px}
+    .item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:12px}
+    .item strong{display:block;font-size:14px}.item span{font-size:13px;color:var(--muted)}
+    .pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px}
+    .req{background:var(--warn-bg);color:var(--warn)} .up{background:var(--success-bg);color:var(--success)}
+    .upload{margin:0 20px 20px;border:2px dashed #c7b0e3;background:#fbf9ff;border-radius:14px;padding:24px;text-align:center}
+    .upload p{margin:0 0 12px;color:var(--muted);font-size:14px}
+    .btn{background:var(--purple);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
+    .btn:hover{background:#3b0f6b}.btn:disabled{opacity:.6}
+    .note{margin:0 20px 20px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px solid var(--border);font-size:13px;color:var(--muted)}
+    .state{max-width:640px;margin:80px auto;padding:0 24px;text-align:center}.state h2{margin:0 0 8px}.state p{margin:0;color:var(--muted)}
+    .docs{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
+    .doc{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px}
+    footer{text-align:center;padding:8px 24px 24px;color:#98a2b3;font-size:12px}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="shared.js"></script>
+  <script>
+    (function(){
+      const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const token = new URLSearchParams(location.search).get('t');
+      const root = document.getElementById('root');
+
+      function render() {
+        const pkg = token ? CD.customerPackage(token) : null;
+        if (!pkg) {
+          root.innerHTML = `<div class="state"><h2>This link is not valid</h2><p>The shipment link is missing, expired, or not recognized. Please use the link from your pre-alert email or contact FedEx Clearance Desk.</p></div>`;
+          return;
+        }
+        const s = pkg.shipment;
+        root.innerHTML = `
+          <header class="top"><div class="top-inner">
+            <div class="brand"><div class="mark"></div><div><h1>FedEx Clearance Desk</h1><p>Secure document upload</p></div></div>
+            <div class="awb"><div class="k">AWB</div><div class="v">${esc(s.awb)}</div></div>
+          </div></header>
+          <main class="wrap">
+            <section class="card">
+              <div class="head"><div class="eyebrow">Shipment Package</div><h2>${esc(s.company)}</h2><p>Review your shipment details and upload required clearance documents.</p></div>
+              <div class="grid">
+                <div class="field"><div class="k">Consignee</div><div class="v">${esc(s.consigneeName || s.company)}</div></div>
+                <div class="field"><div class="k">Location</div><div class="v">${esc(s.location || '—')}</div></div>
+                <div class="field"><div class="k">Clearance Type</div><div class="v">${esc(s.clearanceType || s.endResult)}</div></div>
+                <div class="field"><div class="k">Broker</div><div class="v">${esc(s.broker || 'Not applicable')}</div></div>
+                <div class="field"><div class="k">Freight / Currency</div><div class="v">${esc(s.freight || '—')} ${esc(s.currency || '')}</div></div>
+                <div class="field"><div class="k">Contact Email</div><div class="v">${esc(s.contactEmail || '—')}</div></div>
+              </div>
+            </section>
+            <section class="card">
+              <div class="head"><div class="eyebrow">Document Checklist</div><h2>Required Documents</h2><p>Please upload the documents requested for clearance.</p></div>
+              <div class="list">
+                ${pkg.checklist.map(i => `<div class="item"><div><strong>${esc(i.name)}</strong><span>${i.required?'Required for clearance':'Reference'}</span></div><span class="pill ${i.status==='UPLOADED'?'up':'req'}">${i.status==='UPLOADED'?'Uploaded':'Required'}</span></div>`).join('')}
+              </div>
+            </section>
+            <section class="card">
+              <div class="head"><div class="eyebrow">Upload</div><h2>Upload Documents</h2><p>Accepted formats: PDF, JPG, JPEG, PNG. Files are logged against your AWB.</p></div>
+              <div class="upload">
+                <p>Drag and drop files here, or choose files to upload.</p>
+                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" />
+                <button class="btn" id="pickBtn">Choose Files</button>
+              </div>
+              <div class="note">Only upload documents requested for this shipment. This secure link is specific to AWB ${esc(s.awb)}.</div>
+              ${pkg.documents.length ? `<div class="docs"><div class="eyebrow" style="padding:0 0 4px">Uploaded Documents</div>${pkg.documents.map(d=>`<div class="doc"><div><strong>${esc(d.fileName)}</strong> <span style="color:#667085">· ${esc(CD.fmt(d.uploadedAt))}</span></div><span class="pill up">Received</span></div>`).join('')}</div>` : ''}
+            </section>
+          </main>
+          <footer>FedEx Clearance Desk · Secure tokenized link · Do not share this link</footer>`;
+        const fi = document.getElementById('fileInput'), btn = document.getElementById('pickBtn');
+        btn.onclick = () => fi.click();
+        fi.onchange = async () => {
+          const files = Array.from(fi.files || []);
+          if (!files.length) return;
+          btn.disabled = true; btn.textContent = 'Uploading…';
+          for (const f of files) CD.uploadDocument(token, f);
+          btn.disabled = false; btn.textContent = 'Choose Files'; fi.value = '';
+          render();
+        };
+      }
+
+      render();
+      // Reflect updates if agent app changes state in another tab (storage event) or same demo context.
+      window.addEventListener('storage', e => { if (e.key === CD.KEY) render(); });
+    })();
+  </script>
+</body>
+</html>

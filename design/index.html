@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Home — Clearance Desk (design mockup)</title>
+<link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">FX</div>
+      <div>
+        <div class="name">Clearance Desk</div>
+        <div class="sub">Cargo · Phase 1</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" class="active"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg>Home</a>
+      <a href="upload.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4"/><path d="m7 11 5-5 5 5"/><path d="M4 20h16"/></svg>Upload batch</a>
+      <a href="board.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="18" rx="2"/><rect x="13" y="3" width="8" height="11" rx="2"/></svg>Batch board</a>
+      <a href="column-map.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Column mapping</a>
+      <a href="cases.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M4 9h16"/></svg>All cases</a>
+      <a href="attention.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>Needs attention</a>
+      <a href="case-detail.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>Case detail</a>
+      <a href="igm.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v13H7l-3 3z"/></svg>IGM panel</a>
+      <a href="ai-vs-human.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="3"/><circle cx="17" cy="6" r="2"/><path d="M4 20c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>AI vs human</a>
+      <a href="customer-link.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/></svg>Customer link</a>
+      <a href="cha-call-queue.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2 4.2 2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>CHA call queue</a>
+      <a href="batch-metrics.html"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Batch metrics</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="foot">
+      <div class="user">bipul.sikder@fedex.com</div>
+      <div class="ver">Demo build · v0.1</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="left">
+        <h1>Home</h1>
+        <span class="badge warn">TEST MODE</span>
+      </div>
+      <div class="switches">
+        <label class="sw"><input type="checkbox" checked><span class="track"></span>AI</label>
+        <label class="sw"><input type="checkbox"><span class="track"></span>Send</label>
+        <label class="sw"><input type="checkbox"><span class="track"></span>Follow-up</label>
+        <label class="sw"><input type="checkbox"><span class="track"></span>Call AI</label>
+      </div>
+    </header>
+    <div class="accent"></div>
+
+    <main class="content">
+
+      <div class="page-head">
+        <div>
+          <p class="g">Good day, Team Lead</p>
+          <p class="s">Here is the cargo clearance desk at a glance. Read the numbers, then act.</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn big primary" href="upload.html">Upload UBOND batch</a>
+          <a class="btn big outline" href="upload.html">Upload CONSOL batch</a>
+        </div>
+      </div>
+
+      <div class="money">
+        <div>
+          <div class="amount">₹ 1,47,000</div>
+          <div class="cap">BOE penalty exposure at risk</div>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>2</b><span>confirmed BOEs today</span></div>
+          <div class="fact"><b>5</b><span>awaiting CHA reply</span></div>
+          <div class="fact"><b>11</b><span>documents complete</span></div>
+          <div class="fact"><b>13</b><span>still collecting</span></div>
+        </div>
+        <div class="baseline">Old way: ~1.5 hours per 150 rows, one email at a time. This: 3–5 minutes. <em>(baseline from source doc)</em></div>
+      </div>
+
+      <h2 class="section-h">Today at a glance</h2>
+      <div class="kpis">
+        <a class="kpi" href="cases.html"><div class="v">150</div><div class="t">Rows in</div><div class="d">Uploaded from UBOND / CONSOL</div></a>
+        <a class="kpi" href="board.html"><div class="v">142</div><div class="t">Pre-alerts sent</div><div class="d">Pre-alert emails dispatched</div></a>
+        <a class="kpi" href="batch-metrics.html"><div class="v">61</div><div class="t">Docs received</div><div class="d">Documents received from CHA</div></a>
+        <a class="kpi alert" href="attention.html"><div class="v">12</div><div class="t">Need attention</div><div class="d">Cases requiring a person</div></a>
+        <a class="kpi" href="cases.html"><div class="v">3</div><div class="t">Claimed</div><div class="d">Shipments claimed by CHA</div></a>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-head"><h3>Active batches</h3><a class="btn sm ghost" href="board.html">Open batch board</a></div>
+          <table class="tbl">
+            <thead><tr><th>Batch</th><th>Pipeline</th><th>Sent</th><th>Docs</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">BATCH-…-UBOND</span></td><td><span class="pipe ubond">UBOND</span></td><td>142</td><td>61</td><td><span class="badge ok">SENDING</span></td></tr>
+              <tr><td><span class="mono">BATCH-…-CONSOL</span></td><td><span class="pipe consol">CONSOL</span></td><td>—</td><td>—</td><td><span class="badge neutral">DRAFT</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Quick links</h3></div>
+          <div class="card-body stack">
+            <a class="btn ghost" href="cases.html">All cases — search &amp; track</a>
+            <a class="btn ghost" href="attention.html">Needs attention <span class="badge warn-tint">12</span></a>
+            <a class="btn ghost" href="ai-vs-human.html">AI vs human — automation rate</a>
+            <a class="btn ghost" href="cha-call-queue.html">CHA call queue — 27 blocked</a>
+            <a class="btn ghost" href="batch-metrics.html">Batch metrics — docs funnel</a>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="section-h">System status</h2>
+      <div class="flex wrap">
+        <span class="badge warn"><span class="dot"></span>Test mode ON</span>
+        <span class="badge ok"><span class="dot"></span>SharePoint connected</span>
+        <span class="badge info"><span class="dot"></span>18 lists loaded</span>
+        <span class="badge neutral"><span class="dot"></span>Shared mailbox: healthy</span>
+        <span class="muted small">As of 13 Oct 2026, 09:42</span>
+      </div>
+
+      <div class="refnote">Design mockup · sample data shown for layout only · not connected to live systems</div>
+    </main>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+{
+  "name": "CD-Link-GetPackage",
+  "description": "HTTP triggered flow to fetch shipment by LinkToken for customer page + log first click",
+  "triggers": [
+    {
+      "type": "Request",
+      "kind": "Http",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" }
+        },
+        "required": ["token"]
+      },
+      "method": "POST",
+      "relativePath": "/GetPackage"
+    }
+  ],
+  "actions": [
+    {
+      "name": "Get_shipment",
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "GetItems",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+          "table": "CD_Shipment",
+          "$filter": "LinkToken eq '@{triggerBody()?['token']}'",
+          "$top": 1
+        }
+      }
+    },
+    {
+      "name": "Check_shipment_found",
+      "type": "If",
+      "expression": {
+        "and": [
+          {
+            "greater": [
+              "@length(outputs('Get_shipment')?['body/value'])",
+              0
+            ]
+          }
+        ]
+      },
+      "actions": {
+        "Get_existing_link_opened",
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": {
+            "connectionName": "shared_sharepointonline",
+            "operationId": "GetItems",
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+          },
+          "parameters": {
+            "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+            "table": "CD_ShipmentEvent",
+            "$filter": "AWB eq '@{first(outputs('Get_shipment')?['body/value'])?['Title']}' and EventType eq 'LINK_OPENED'",
+            "$top": 1
+          }
+        },
+        "Check_if_already_logged",
+        "type": "If",
+        "expression": {
+          "and": [
+            {
+              "equals": [
+                "@length(outputs('Get_existing_link_opened')?['body/value'])",
+                0
+              ]
+            }
+          ]
+        },
+        "actions": {
+          "Create_LINK_OPENED_event": {
+            "name": "Create_LINK_OPENED_event",
+            "type": "OpenApiConnection",
+            "inputs": {
+              "host": {
+                "connectionName": "shared_sharepointonline",
+                "operationId": "PostItem",
+                "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+              },
+              "parameters": {
+                "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+                "table": "CD_ShipmentEvent",
+                "item": {
+                  "Title": "LINK_OPENED",
+                  "AWB": "@{first(outputs('Get_shipment')?['body/value'])?['Title']}",
+                  "EventType": "LINK_OPENED",
+                  "Actor": "CUSTOMER",
+                  "EventDate": "@{utcNow()}"
+                }
+              }
+            }
+          }
+        },
+        "Response_200": {
+          "name": "Response_200",
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "body": {
+              "awb": "@{first(outputs('Get_shipment')?['body/value'])?['Title']}",
+              "company": "@{first(outputs('Get_shipment')?['body/value'])?['Company']}",
+              "consigneeName": "@{first(outputs('Get_shipment')?['body/value'])?['ConsigneeName']}",
+              "location": "@{first(outputs('Get_shipment')?['body/value'])?['Location']}",
+              "clearanceType": "@{first(outputs('Get_shipment')?['body/value'])?['ClearanceType']}",
+              "broker": "@{first(outputs('Get_shipment')?['body/value'])?['Broker']}",
+              "pieces": "@{first(outputs('Get_shipment')?['body/value'])?['Pieces']}",
+              "weight": "@{first(outputs('Get_shipment')?['body/value'])?['Weight']}",
+              "invoiceValue": "@{first(outputs('Get_shipment')?['body/value'])?['InvoiceValue']}",
+              "currency": "@{first(outputs('Get_shipment')?['body/value'])?['Currency']}",
+              "checklist": [
+                {"name": "Invoice", "required": true, "status": "REQUIRED"},
+                {"name": "Packing List", "required": true, "status": "REQUIRED"},
+                {"name": "KYC Documents", "required": true, "status": "REQUIRED"},
+                {"name": "IEC Certificate", "required": true, "status": "REQUIRED"},
+                {"name": "Other Supporting Documents", "required": true, "status": "REQUIRED"}
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "Response_404": {
+            "name": "Response_404",
+            "type": "Response",
+            "kind": "Http",
+            "inputs": {
+              "statusCode": 404,
+              "body": {
+                "error": "Invalid or expired link"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

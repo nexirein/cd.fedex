@@ -1,0 +1,75 @@
+{
+  "name": "CD_ImportExcel",
+  "description": "Import UBOND/CONSOL Excel file from Canvas App, parse and validate per 40EXCEL_IMPORT_MAP",
+  "triggers": [
+    {
+      "type": "Request",
+      "kind": "Http",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "fileName": { "type": "string" },
+          "fileContent": { "type": "string" },
+          "pipeline": { "type": "string" }
+        },
+        "required": ["fileName", "fileContent"]
+      }
+    }
+  ],
+  "actions": [
+    {
+      "name": "Compose_Base64",
+      "type": "Compose",
+      "inputs": "@triggerBody()?['fileContent']"
+    },
+    {
+      "name": "Create_file_in_temp",
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_sharepointonline",
+          "operationId": "CreateFile",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+        },
+        "parameters": {
+          "dataset": "https://myfedex.sharepoint.com/sites/ClearanceDeskDemo",
+          "folderPath": "/Shared Documents/ClearanceDeskTemp",
+          "name": "@{concat('import_', utcNow('yyyyMMddHHmmss'), '_', triggerBody()?['fileName'])}",
+          "body": "@base64ToBinary(outputs('Compose_Base64'))"
+        }
+      }
+    },
+    {
+      "name": "List_rows_present_in_a_table",
+      "type": "OpenApiConnection",
+      "inputs": {
+        "host": {
+          "connectionName": "shared_excelonlinebusiness",
+          "operationId": "GetTables",
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+        },
+        "parameters": {
+          "source": "groups/PLACEHOLDER_GROUP",
+          "drive": "PLACEHOLDER_DRIVE",
+          "file": "@{outputs('Create_file_in_temp')?['body/Id']}"
+        }
+      }
+    },
+    {
+      "name": "Respond_to_PowerApp_or_flow",
+      "type": "Response",
+      "kind": "Http",
+      "inputs": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "status": "ready",
+          "message": "Flow template created. Configure Excel table and add validation logic per 40EXCEL_IMPORT_MAP.md",
+          "fileName": "@{triggerBody()?['fileName']}"
+        }
+      }
+    }
+  ]
+}

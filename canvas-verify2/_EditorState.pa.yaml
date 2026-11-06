@@ -1,0 +1,14 @@
+EditorState:
+  ScreensOrder:
+    - ScrHome
+    - ScrBatchUpload
+    - ScrColumnMap
+    - ScrBatchBoard
+    - ScrAllCases
+    - ScrNeedsAttention
+    - ScrCaseDetail
+    - ScrIGMPanel
+    - ScrAIVsHuman
+    - ScrCustomerLink
+    - ScrCHACallQueue
+    - ScrBatchMetrics

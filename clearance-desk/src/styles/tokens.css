@@ -1,0 +1,30 @@
+:root {
+  --fx-purple-900: #2F0A57;
+  --fx-purple-800: #3B0F6B;
+  --fx-purple-700: #4D148C;
+  --fx-purple-600: #5F1DB3;
+  --fx-purple-100: #F3ECFB;
+  --fx-purple-50: #FAF7FD;
+  --fx-orange-600: #E55B00;
+  --fx-orange-500: #FF6600;
+  --fx-orange-100: #FFF1E8;
+  --fx-bg: #F3F4F6;
+  --fx-surface: #FFFFFF;
+  --fx-surface-2: #FCFCFD;
+  --fx-border: #E5E7EB;
+  --fx-border-strong: #D0D5DD;
+  --fx-text: #111827;
+  --fx-text-muted: #4B5563;
+  --fx-text-subtle: #6B7280;
+  --fx-text-inverse: #FFFFFF;
+  --fx-success: #067647; --fx-success-bg: #ECFDF3; --fx-success-border: #ABEFC6;
+  --fx-warning: #B54708; --fx-warning-bg: #FFFAEB; --fx-warning-border: #FEDF89;
+  --fx-danger: #B42318;  --fx-danger-bg: #FEF3F2;  --fx-danger-border: #FECDCA;
+  --fx-info: #175CD3;    --fx-info-bg: #EFF8FF;    --fx-info-border: #B2DDFF;
+  --fx-neutral: #344054; --fx-neutral-bg: #F2F4F7; --fx-neutral-border: #EAECF0;
+  --fx-focus: rgba(77, 20, 140, 0.22);
+  --fx-overlay: rgba(17, 24, 39, 0.45);
+  --fx-shadow-sm: 0 1px 2px rgba(17,24,39,.04), 0 1px 3px rgba(17,24,39,.06);
+  --fx-shadow: 0 10px 30px -18px rgba(17,24,39,.22), 0 2px 8px -4px rgba(17,24,39,.08);
+  --fx-radius: 14px;
+}

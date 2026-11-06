@@ -1,9 +1,6 @@
-
 import { Topbar } from "@/components/layout/Topbar";
 import { createClient } from "@/lib/supabase/server";
-import { fmtDate } from "@/lib/utils";
-import { LINK_STATUS_META, type LinkStatus } from "@/lib/rules";
-import Link from "next/link";
+import { LinksTableClient } from "./LinksTableClient";
 
 export default async function AdminLinkDashboardPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
   const sp = await searchParams;
@@ -29,15 +26,15 @@ export default async function AdminLinkDashboardPage({ searchParams }: { searchP
   const filters = [["ALL","All"],["NOT_SENT","Not Sent"],["SENT_NOT_OPENED","Sent · Not Opened"],["LINK_OPENED_AWAITING_DOCS","Link Opened · Awaiting Docs"],["DOCS_RECEIVED","Docs Received"]];
   return (
     <>
-      <Topbar title="Link Open Dashboard" subtitle="Who opened, who didn’t, and who uploaded — filter and drill down to trace" />
+      <Topbar title="Link Open Dashboard" subtitle="Select shipments (all or individual) and click Send pre-alerts. Track who opened and who uploaded docs." />
       <main className="p-6">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6 mb-4">
           {[["Shipments",stats.total],["Sent",stats.sent],["Not Opened",stats.notOpened],["Opened",stats.opened],["Docs Received",stats.docs],["Open Rate",`${openRate}%`]].map(([l,v]) => (
             <div key={String(l)} className="fx-card p-4"><div className="text-[12px] text-[var(--fx-text-subtle)]">{l}</div><div className="mt-1 text-[26px] font-bold text-[var(--fx-purple-700)]">{v}</div></div>
           ))}
         </div>
-        <div className="fx-card">
-          <div className="border-b border-[var(--fx-border)] p-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="fx-card mb-4">
+          <div className="p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
               {filters.map(([k,l]) => <a key={k} href={`/admin/links?status=${k}${q?`&q=${encodeURIComponent(q)}`:""}`} className={status===k?"fx-btn fx-btn-primary fx-btn-sm":"fx-btn fx-btn-secondary fx-btn-sm"}>{l}</a>)}
             </div>
@@ -47,30 +44,8 @@ export default async function AdminLinkDashboardPage({ searchParams }: { searchP
               <button className="fx-btn fx-btn-secondary fx-btn-sm" type="submit">Search</button>
             </form>
           </div>
-          <div className="overflow-auto">
-            <table className="fx-table">
-              <thead><tr><th>AWB</th><th>Company</th><th>Recipient</th><th>Batch</th><th>Sent At</th><th>Opened At</th><th>Docs</th><th>Last Doc</th><th>Link Status</th></tr></thead>
-              <tbody>
-                {rows.length ? rows.map((r: any) => {
-                  const meta = LINK_STATUS_META[r.link_status as LinkStatus] || LINK_STATUS_META.NOT_SENT;
-                  return (
-                    <tr key={r.shipment_id}>
-                      <td className="fx-mono font-semibold"><Link href={`/shipments/${r.awb}`} className="text-[var(--fx-purple-700)] hover:underline">{r.awb}</Link></td>
-                      <td>{r.company_name || "—"}</td>
-                      <td className="text-[13px]">{r.contact_email || <span className="fx-badge fx-badge-danger">Missing</span>}</td>
-                      <td className="text-[13px] text-[var(--fx-text-subtle)]">{r.batch_code}</td>
-                      <td className="text-[13px] text-[var(--fx-text-subtle)]">{fmtDate(r.sent_at)}</td>
-                      <td className="text-[13px]">{r.link_opened_at ? fmtDate(r.link_opened_at) : <span className="text-[var(--fx-text-subtle)]">—</span>}</td>
-                      <td>{r.doc_count ? <span className="fx-badge fx-badge-success">{r.doc_count}</span> : <span className="text-[var(--fx-text-subtle)]">0</span>}</td>
-                      <td className="text-[13px] text-[var(--fx-text-subtle)]">{fmtDate(r.last_doc_at)}</td>
-                      <td><span className={`fx-badge ${meta.badge}`}>{meta.label}</span></td>
-                    </tr>
-                  );
-                }) : <tr><td colSpan={9} className="p-10 text-center text-[var(--fx-text-subtle)]">No shipments found. Import a batch and send pre-alerts to see link engagement.</td></tr>}
-              </tbody>
-            </table>
-          </div>
         </div>
+        <LinksTableClient rows={rows} />
       </main>
     </>
   );
